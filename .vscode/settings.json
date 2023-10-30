@@ -1,0 +1,13 @@
+{
+  "editor.formatOnSave": true,
+  "eslint.debug": true,
+  "eslint.lintTask.enable": true,
+  "eslint.run": "onType",
+  "eslint.validate": ["javascript", "typescript"],
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true,
+  "eslint.format.enable": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
+}
