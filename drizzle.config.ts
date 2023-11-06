@@ -2,8 +2,9 @@ import "dotenv/config";
 import type { Config } from "drizzle-kit";
 
 export default {
-  schema: "./src/db/schemas/schema.ts",
+  schema: "./src/db/schemas/*.ts",
   out: "./drizzle",
+  schemaFilter: ["public", "ecommerce-schema"],
   driver: "pg",
   dbCredentials: {
     host: process.env.DB_HOST!,
