@@ -13,6 +13,6 @@ export default {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME!
     // connectionString:
-    //   "postgresql://postgres:lojSlNlAMmDihwUb@db.hchkolhpoaiclscgfpkt.supabase.co:5432/postgres"
+    //   process.env.DB_CONNECTION_STRING
   }
 } satisfies Config;
