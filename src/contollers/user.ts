@@ -1,5 +1,5 @@
-import db from "../db/connection";
-import { users } from "../db/schemas/schema";
+import db from "@db/connection";
+import { users } from "@db/schemas/user";
 
 const getAllUsers = async () => {
   try {

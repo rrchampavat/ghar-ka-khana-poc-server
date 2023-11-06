@@ -1,7 +1,8 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import getAllUsers from "./contollers/user";
+import getAllUsers from "contollers/user";
+import { SERVER_PORT } from "@constants/envVars";
 
 dotenv.config();
 
@@ -10,7 +11,6 @@ if (!process.env.SERVER_PORT) {
 }
 
 const app = express();
-const PORT = process.env.SERVER_PORT;
 
 app.use(cors());
 app.use(express.json()); // used to get data from JSON type
@@ -26,7 +26,7 @@ app.use("*", (_req: Request, res: Response) => {
   res.status(400).json({ message: "Invalid request URL!" });
 });
 
-app.listen(PORT, () => {
+app.listen(SERVER_PORT, () => {
   // eslint-disable-next-line no-console
-  console.log(`Server spinning at http://localhost:${PORT}`);
+  console.log(`Server spinning at http://localhost:${SERVER_PORT}`);
 });
