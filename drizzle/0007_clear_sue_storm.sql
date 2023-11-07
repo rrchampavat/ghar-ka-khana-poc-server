@@ -1,0 +1,1 @@
+ALTER TABLE "ecommerce-schema"."user_roles" RENAME COLUMN "user_role_id" TO "id";

@@ -11,7 +11,7 @@ import type { Config } from "drizzle-kit";
 export default {
   schema: "./src/db/schemas/*",
   out: "./drizzle",
-  schemaFilter: ["public", "ecommerce-schema"],
+  schemaFilter: ["ecommerce-schema"],
   driver: "pg",
   dbCredentials: {
     host: dbHost,
