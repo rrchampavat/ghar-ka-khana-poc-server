@@ -1,6 +1,7 @@
 import { InferSelectModel, relations } from "drizzle-orm";
 import { char, serial, timestamp } from "drizzle-orm/pg-core";
-import { mySchema, users } from "./userSchema";
+import { users } from "./userSchema";
+import mySchema from "@db/schemas/schema";
 
 export const roles = mySchema.table("roles", {
   id: serial("id").primaryKey(),

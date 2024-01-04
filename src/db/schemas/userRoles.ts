@@ -1,7 +1,8 @@
 import { bigserial, serial, timestamp } from "drizzle-orm/pg-core";
-import { mySchema, users } from "./userSchema";
+import { users } from "./userSchema";
 import { roles } from "./roleSchema";
 import { InferSelectModel } from "drizzle-orm";
+import mySchema from "@db/schemas/schema";
 
 export const userRoles = mySchema.table("user_roles", {
   id: serial("id").primaryKey(),

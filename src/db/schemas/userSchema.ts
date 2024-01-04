@@ -4,13 +4,11 @@ import {
   bigserial,
   char,
   integer,
-  pgSchema,
   timestamp,
   varchar
 } from "drizzle-orm/pg-core";
 import { roles } from "./roleSchema";
-
-export const mySchema = pgSchema("ecommerce-schema");
+import mySchema from "@db/schemas/schema";
 
 export const users = mySchema.table("users", {
   id: bigserial("id", { mode: "number" }).primaryKey(),
