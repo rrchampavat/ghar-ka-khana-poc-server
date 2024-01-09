@@ -29,7 +29,8 @@
     "paths": {
       "@constants/*": ["constants/*"],
       "@controllers/*": ["controllers/*"],
-      "@db/*": ["db/*"]
+      "@db/*": ["db/*"],
+      "@routes/*": ["routes/*"]
     }
   },
   "include": ["src"]
