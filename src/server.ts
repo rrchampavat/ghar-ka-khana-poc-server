@@ -1,8 +1,10 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import getAllUsers from "contollers/user";
 import { SERVER_PORT } from "@constants/envVars";
+import swaggerUi from "swagger-ui-express";
+import specs from "../swagger";
+import userRoutes from "@routes/userRoutes.ts";
 
 dotenv.config();
 
@@ -20,7 +22,9 @@ app.get("/", (_request: Request, response: Response) => {
   response.status(200).json({ message: "Server is up!" });
 });
 
-(async () => await getAllUsers())();
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+
+app.use("/api/v1/users", userRoutes);
 
 app.use("*", (_req: Request, res: Response) => {
   res.status(400).json({ message: "Invalid request URL!" });
