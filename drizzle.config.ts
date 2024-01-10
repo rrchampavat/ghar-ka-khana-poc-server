@@ -1,9 +1,9 @@
 import {
-  dbHost,
-  dbName,
-  dbPassword,
-  dbPort,
-  dbUser
+  DB_HOST,
+  DB_NAME,
+  DB_PASSWORD,
+  DB_PORT,
+  DB_USER
 } from "./src/constants/envVars";
 import "dotenv/config";
 import type { Config } from "drizzle-kit";
@@ -14,11 +14,11 @@ export default {
   schemaFilter: ["ecommerce-schema"],
   driver: "pg",
   dbCredentials: {
-    host: dbHost,
-    port: dbPort,
-    user: dbUser,
-    password: dbPassword,
-    database: dbName
+    host: DB_HOST,
+    port: DB_PORT,
+    user: DB_USER,
+    password: DB_PASSWORD,
+    database: DB_NAME
     // connectionString:
     //   dbConnectionString
   }
