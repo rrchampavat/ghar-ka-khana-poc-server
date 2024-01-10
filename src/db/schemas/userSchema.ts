@@ -1,19 +1,18 @@
-import { InferSelectModel, relations } from "drizzle-orm";
+import { InferSelectModel } from "drizzle-orm";
 import {
   bigint,
   bigserial,
-  char,
   integer,
+  text,
   timestamp,
   varchar
 } from "drizzle-orm/pg-core";
-import { roles } from "./roleSchema";
 import mySchema from "@db/schemas/schema";
 
 export const users = mySchema.table("users", {
   id: bigserial("id", { mode: "number" }).primaryKey(),
-  first_name: char("first_name", { length: 15 }).notNull(),
-  last_name: char("last_name", { length: 15 }).notNull(),
+  first_name: text("first_name").notNull(),
+  last_name: text("last_name").notNull(),
   password: varchar("password").notNull(),
   email: varchar("email").notNull().unique(),
   contact_no: bigint("contact_no", { mode: "number" }).notNull().unique(),
@@ -26,12 +25,12 @@ export const users = mySchema.table("users", {
   deleted_at: timestamp("deleted_at", { withTimezone: true })
 });
 
-export const userRelations = relations(users, ({ one }) => ({
-  role: one(roles, {
-    fields: [users.role],
-    references: [roles.id],
-    relationName: "roles"
-  })
-}));
+// export const userRelations = relations(users, ({ one }) => ({
+//   role: one(roles, {
+//     fields: [users.role],
+//     references: [roles.id],
+//     relationName: "roles"
+//   })
+// }));
 
 export type User = InferSelectModel<typeof users>;

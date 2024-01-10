@@ -1,5 +1,5 @@
+import getAllUsers from "contollers/user.ts";
 import { Router } from "express";
-import getAllUsers from "../contollers/user.ts";
 
 const router: Router = Router();
 

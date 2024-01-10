@@ -5,6 +5,7 @@ import { SERVER_PORT } from "@constants/envVars";
 import swaggerUi from "swagger-ui-express";
 import specs from "../swagger";
 import userRoutes from "@routes/userRoutes.ts";
+import authRoutes from "@routes/authRoutes.ts";
 
 dotenv.config();
 
@@ -23,6 +24,8 @@ app.get("/", (_request: Request, response: Response) => {
 });
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+
+app.use("/api/v1/auth", authRoutes);
 
 app.use("/api/v1/users", userRoutes);
 

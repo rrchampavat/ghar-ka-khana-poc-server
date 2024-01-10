@@ -1,13 +1,15 @@
 import dotenv from "dotenv";
+import * as process from "process";
 
 dotenv.config();
 
 export const SERVER_PORT = process.env.SERVER_PORT;
+export const BCRYPT_SALT = Number(process.env.BCRYPT_SALT);
 
 // DB CONNECTION
-export const dbConnectionString = process.env.DB_CONNECTION_STRING!;
-export const dbHost = process.env.DB_HOST!;
-export const dbPort = Number(process.env.DB_PORT);
-export const dbUser = process.env.DB_USER;
-export const dbPassword = process.env.DB_PASSWORD;
-export const dbName = process.env.DB_NAME!;
+export const DB_CONNECTION_STRING = process.env.DB_CONNECTION_STRING!;
+export const DB_HOST = process.env.DB_HOST!;
+export const DB_PORT = Number(process.env.DB_PORT);
+export const DB_USER = process.env.DB_USER;
+export const DB_PASSWORD = process.env.DB_PASSWORD;
+export const DB_NAME = process.env.DB_NAME!;

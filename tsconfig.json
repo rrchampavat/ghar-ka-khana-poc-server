@@ -30,7 +30,11 @@
       "@constants/*": ["constants/*"],
       "@controllers/*": ["controllers/*"],
       "@db/*": ["db/*"],
-      "@routes/*": ["routes/*"]
+      "@helpers/*": ["helpers/*"],
+      "@middlewares/*": ["middlewares/*"],
+      "@routes/*": ["routes/*"],
+      "@types/*": ["types/*"],
+      "@validation-schemas/*": ["validation-schemas/*"]
     }
   },
   "include": ["src"]
