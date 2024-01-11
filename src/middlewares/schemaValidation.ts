@@ -1,6 +1,6 @@
-import httpStatusCode from "@constants/httpStatusCode.ts";
 import { NextFunction, Request, Response } from "express";
 import { AnyZodObject } from "zod";
+import { badRequestRes } from "@helpers/httpResponseGenerator.ts";
 
 const validate = (schema: AnyZodObject) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -15,10 +15,7 @@ const validate = (schema: AnyZodObject) => {
 
       return next();
     } catch (error: any) {
-      return res.status(httpStatusCode["BAD_REQUEST"]).json({
-        message: JSON.parse(error.message)?.[0]?.message,
-        success: false
-      });
+      return badRequestRes(res, JSON.parse(error.message)?.[0]?.message);
     }
   };
 };

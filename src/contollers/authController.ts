@@ -1,12 +1,16 @@
 import { BCRYPT_SALT } from "@constants/envVars.ts";
-import httpStatusCode from "@constants/httpStatusCode.ts";
 import db from "@db/connection.ts";
 import { users } from "@db/schemas/userSchema.ts";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+import { duplicateEntry, postSuccess } from "@helpers/httpResponseGenerator.ts";
 
-export const register = async (req: Request, res: Response) => {
+export const registerUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { body }: { body: REGISTER_BODY } = req;
 
@@ -30,10 +34,12 @@ export const register = async (req: Request, res: Response) => {
     //
     // const existingEmail = await existingEmailQuery;
 
-    if (existingEmail.length)
-      return res
-        .status(httpStatusCode["BAD_REQUEST"])
-        .json({ message: "Email is already in use!", success: false });
+    if (existingEmail.length) {
+      return duplicateEntry(
+        res,
+        "This email address has already been registered. Please use a different one."
+      );
+    }
 
     const existingContactNo = await db
       .select({ contact_no: users.contact_no })
@@ -46,10 +52,12 @@ export const register = async (req: Request, res: Response) => {
     //
     // const existingContactNo = await contactNoExistsQuery;
 
-    if (existingContactNo.length)
-      return res
-        .status(httpStatusCode["BAD_REQUEST"])
-        .json({ message: "Contact number is already in use!", success: false });
+    if (existingContactNo.length) {
+      return duplicateEntry(
+        res,
+        "This contact number is already associated with an account. Please use a different one."
+      );
+    }
 
     const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT);
 
@@ -70,12 +78,11 @@ export const register = async (req: Request, res: Response) => {
 
     // await executableInsertQuery;
 
-    return res
-      .status(httpStatusCode["SUCCESS"])
-      .json({ message: "User created successfully!", success: true });
-  } catch (error: any) {
-    return res
-      .status(httpStatusCode["SERVER_ERROR"])
-      .json({ message: "Something went wrong", success: false });
+    return postSuccess(
+      res,
+      "Congratulations! You have successfully registered."
+    );
+  } catch (error) {
+    return next(error);
   }
 };

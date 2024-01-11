@@ -6,6 +6,10 @@ import swaggerUi from "swagger-ui-express";
 import specs from "../swagger";
 import userRoutes from "@routes/userRoutes.ts";
 import authRoutes from "@routes/authRoutes.ts";
+import {
+  logErrorMiddleware,
+  returnError
+} from "@middlewares/errorMiddleware.ts";
 
 dotenv.config();
 
@@ -28,6 +32,9 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/api/v1/auth", authRoutes);
 
 app.use("/api/v1/users", userRoutes);
+
+app.use(logErrorMiddleware);
+app.use(returnError);
 
 app.use("*", (_req: Request, res: Response) => {
   res.status(400).json({ message: "Invalid request URL!" });
