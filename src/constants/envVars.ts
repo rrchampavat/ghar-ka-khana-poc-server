@@ -13,3 +13,8 @@ export const DB_PORT = Number(process.env.DB_PORT);
 export const DB_USER = process.env.DB_USER!;
 export const DB_PASSWORD = process.env.DB_PASSWORD!;
 export const DB_NAME = process.env.DB_NAME!;
+
+// UPLOAD THING
+
+export const UPLOADTHING_SECRET = process.env.UPLOADTHING_SECRET!;
+export const UPLOADTHING_APP_ID = process.env.UPLOADTHING_APP_ID!;
