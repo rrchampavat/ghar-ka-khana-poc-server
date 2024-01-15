@@ -1,5 +1,5 @@
-import BaseError from "error-handling/base-error.ts";
-import { httpStatusCode, statusMessages } from "@constants/httpStatusCode.ts";
+import BaseError from "error-handling/base-error";
+import { httpStatusCode, statusMessages } from "@constants/httpStatusCode";
 
 export class APIError extends BaseError {
   constructor(error: any) {

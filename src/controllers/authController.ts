@@ -1,10 +1,10 @@
-import { BCRYPT_SALT } from "@constants/envVars.ts";
-import db from "@db/connection.ts";
-import { users } from "@db/schemas/userSchema.ts";
+import { BCRYPT_SALT } from "@constants/envVars";
+import db from "@db/connection";
+import { users } from "@db/schemas/userSchema";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { NextFunction, Request, Response } from "express";
-import { duplicateEntry, postSuccess } from "@helpers/httpResponseGenerator.ts";
+import { duplicateEntry, postSuccess } from "@helpers/httpResponseGenerator";
 
 export const registerUser = async (
   req: Request,
@@ -14,7 +14,7 @@ export const registerUser = async (
   try {
     const { body }: { body: REGISTER_BODY } = req;
 
-    const { firstName, lastName, email, password, contactNo, userImage } = body;
+    const { firstName, lastName, email, password, contactNo } = body;
 
     const existingEmail = await db
       .select({ email: users.email })
@@ -67,8 +67,7 @@ export const registerUser = async (
       email: email,
       password: hashedPassword,
       contact_no: contactNo,
-      role: 0,
-      user_image: userImage
+      role: 0
     });
 
     // const insertUserQuery = sql`INSERT INTO ${users} (first_name, last_name, email, password, contact_no, role_id, user_image)

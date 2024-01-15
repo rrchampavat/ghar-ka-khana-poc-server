@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { AnyZodObject } from "zod";
-import { badRequestRes } from "@helpers/httpResponseGenerator.ts";
+import { badRequestRes } from "@helpers/httpResponseGenerator";
 
 const validate = (schema: AnyZodObject) => {
   return async (req: Request, res: Response, next: NextFunction) => {

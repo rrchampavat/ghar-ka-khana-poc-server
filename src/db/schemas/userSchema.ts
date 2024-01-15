@@ -8,7 +8,7 @@ import {
   varchar
 } from "drizzle-orm/pg-core";
 import mySchema from "@db/schemas/schema";
-import { roles } from "@db/schemas/roleSchema.ts";
+import { roles } from "@db/schemas/roleSchema";
 
 export const users = mySchema.table("users", {
   id: bigserial("id", { mode: "number" }).primaryKey(),

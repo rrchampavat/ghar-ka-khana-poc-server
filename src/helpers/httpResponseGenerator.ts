@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { httpStatusCode, statusMessages } from "@constants/httpStatusCode.ts";
+import { httpStatusCode, statusMessages } from "@constants/httpStatusCode";
 
 export const notFoundRes = (
   res: Response,
