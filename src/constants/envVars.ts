@@ -18,3 +18,6 @@ export const DB_NAME = process.env.DB_NAME!;
 
 export const UPLOADTHING_SECRET = process.env.UPLOADTHING_SECRET!;
 export const UPLOADTHING_APP_ID = process.env.UPLOADTHING_APP_ID!;
+
+// JWT
+export const JWT_SECRET = process.env.JWT_SECRET!;

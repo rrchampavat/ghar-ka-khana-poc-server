@@ -1,83 +1,76 @@
 import { Response } from "express";
 import { httpStatusCode, statusMessages } from "@constants/httpStatusCode";
 
-export const notFoundRes = (
+const createApiResponse = (
   res: Response,
-  message = statusMessages[httpStatusCode["SUCCESS"]]!
-) => {
-  return res
-    .status(httpStatusCode["SUCCESS"])
-    .json({ message, success: false });
+  statusCode: number,
+  options: API_RESPONSE_OPTIONS
+): Response => {
+  return res.status(statusCode).json(options);
 };
 
-export const fetchSuccess = (
-  res: Response,
-  message = statusMessages[httpStatusCode["SUCCESS"]]!,
-  data: any
-) => {
-  return res
-    .status(httpStatusCode["SUCCESS"])
-    .json({ message, data, success: true });
+export const notFoundRes = (res: Response, message?: string) => {
+  return createApiResponse(res, httpStatusCode.SUCCESS, {
+    message: message || statusMessages[httpStatusCode.SUCCESS]!,
+    success: false
+  });
 };
 
-export const postSuccess = (
-  res: Response,
-  message = statusMessages[httpStatusCode["CREATED"]]!
-) => {
-  return res.status(httpStatusCode["CREATED"]).json({ message, success: true });
+export const fetchSuccess = (res: Response, message?: string, data?: any) => {
+  return createApiResponse(res, httpStatusCode.SUCCESS, {
+    message: message || statusMessages[httpStatusCode.SUCCESS]!,
+    data,
+    success: true
+  });
 };
 
-export const updateSuccess = (
-  res: Response,
-  message = statusMessages["UPDATE_SUCCESS"]!,
-  data?: any
-) => {
-  return res
-    .status(httpStatusCode["NO_CONTENT"])
-    .json({ message, data, success: true });
+export const postSuccess = (res: Response, message?: string, data?: any) => {
+  return createApiResponse(res, httpStatusCode.CREATED, {
+    message: message || statusMessages[httpStatusCode.CREATED]!,
+    success: true,
+    data
+  });
 };
 
-export const deleteSuccess = (
-  res: Response,
-  message = statusMessages["DELETE_SUCCESS"]!
-) => {
-  return res
-    .status(httpStatusCode["NO_CONTENT"])
-    .json({ message, success: true });
+export const updateSuccess = (res: Response, message?: string, data?: any) => {
+  return createApiResponse(res, httpStatusCode.NO_CONTENT, {
+    message: message || statusMessages.UPDATE_SUCCESS!,
+    data,
+    success: true
+  });
 };
 
-export const notAuthorizedRes = (
-  res: Response,
-  message = statusMessages[httpStatusCode["UNAUTHORIZED"]]!
-) => {
-  return res
-    .status(httpStatusCode["UNAUTHORIZED"])
-    .json({ message, success: false });
+export const deleteSuccess = (res: Response, message?: string) => {
+  return createApiResponse(res, httpStatusCode.NO_CONTENT, {
+    message: message || statusMessages.DELETE_SUCCESS!,
+    success: true
+  });
 };
 
-export const forbiddenRes = (
-  res: Response,
-  message = statusMessages[httpStatusCode["FORBIDDEN"]]!
-) => {
-  return res
-    .status(httpStatusCode["FORBIDDEN"])
-    .json({ message, success: false });
+export const notAuthorizedRes = (res: Response, message?: string) => {
+  return createApiResponse(res, httpStatusCode.UNAUTHORIZED, {
+    message: message || statusMessages[httpStatusCode.UNAUTHORIZED]!,
+    success: false
+  });
 };
 
-export const badRequestRes = (
-  res: Response,
-  message = statusMessages[httpStatusCode["BAD_REQUEST"]]!
-) => {
-  return res
-    .status(httpStatusCode["BAD_REQUEST"])
-    .json({ message, success: false });
+export const forbiddenRes = (res: Response, message?: string) => {
+  return createApiResponse(res, httpStatusCode.FORBIDDEN, {
+    message: message || statusMessages[httpStatusCode.FORBIDDEN]!,
+    success: false
+  });
 };
 
-export const duplicateEntry = (
-  res: Response,
-  message = statusMessages["DUPLICATE_ENTRY"]!
-) => {
-  return res
-    .status(httpStatusCode["SUCCESS"])
-    .json({ message, success: false });
+export const badRequestRes = (res: Response, message?: string) => {
+  return createApiResponse(res, httpStatusCode.BAD_REQUEST, {
+    message: message || statusMessages[httpStatusCode.BAD_REQUEST]!,
+    success: false
+  });
+};
+
+export const duplicateEntry = (res: Response, message?: string) => {
+  return createApiResponse(res, httpStatusCode.SUCCESS, {
+    message: message || statusMessages.DUPLICATE_ENTRY!,
+    success: false
+  });
 };

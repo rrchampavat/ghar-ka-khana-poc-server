@@ -5,6 +5,10 @@ import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { NextFunction, Request, Response } from "express";
 import { duplicateEntry, postSuccess } from "@helpers/httpResponseGenerator";
+// @ts-expect-error
+import { REGISTER_REQUEST } from "@types/auth/reqBodyTypes";
+import { JWT_EXPIRES_IN } from "@constants/jwt";
+import generateJwtToken from "@utils/generateJwtToken";
 
 export const registerUser = async (
   req: Request,
@@ -12,7 +16,7 @@ export const registerUser = async (
   next: NextFunction
 ) => {
   try {
-    const { body }: { body: REGISTER_BODY } = req;
+    const { body }: REGISTER_REQUEST = req;
 
     const { firstName, lastName, email, password, contactNo } = body;
 
@@ -61,14 +65,25 @@ export const registerUser = async (
 
     const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT);
 
-    await db.insert(users).values({
-      first_name: firstName,
-      last_name: lastName,
-      email: email,
-      password: hashedPassword,
-      contact_no: contactNo,
-      role: 0
-    });
+    const user = await db
+      .insert(users)
+      .values({
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        password: hashedPassword,
+        contact_no: contactNo,
+        role: 0
+      })
+      .returning({ user_id: users.id, user_role: users.role });
+
+    const userID = user[0]?.user_id;
+    const userRole = user[0]?.user_role;
+
+    const accessToken = generateJwtToken(
+      { user_id: userID, user_role: userRole },
+      JWT_EXPIRES_IN
+    );
 
     // const insertUserQuery = sql`INSERT INTO ${users} (first_name, last_name, email, password, contact_no, role_id, user_image)
     //         VALUES (${firstName}, ${lastName}, ${email}, ${hashedPassword}, ${contactNo}, 0, ${userImage})`;
@@ -79,7 +94,8 @@ export const registerUser = async (
 
     return postSuccess(
       res,
-      "Congratulations! You have successfully registered."
+      "Congratulations! You have successfully registered.",
+      { accessToken }
     );
   } catch (error) {
     return next(error);
