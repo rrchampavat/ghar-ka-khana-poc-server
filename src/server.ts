@@ -13,6 +13,7 @@ import authRoutes from "@routes/authRoutes";
 import { logErrorMiddleware, returnError } from "@middlewares/errorMiddleware";
 import { createUploadthingExpressHandler } from "uploadthing/express";
 import { ourFileRouter } from "@controllers/imageController";
+import { badRequestRes, fetchSuccess } from "@helpers/httpResponseGenerator";
 
 dotenv.config();
 
@@ -26,8 +27,8 @@ app.use(cors());
 app.use(express.json()); // used to get data from JSON type
 app.use(express.urlencoded({ extended: true })); // used to get data from URL or form data
 
-app.get("/", (_request: Request, response: Response) => {
-  response.status(200).json({ message: "Server is up!" });
+app.get("/", (_request: Request, res: Response) => {
+  fetchSuccess(res, "Server is up.");
 });
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
@@ -50,7 +51,7 @@ app.use(logErrorMiddleware);
 app.use(returnError);
 
 app.use("*", (_req: Request, res: Response) => {
-  res.status(400).json({ message: "Invalid request URL!" });
+  badRequestRes(res, "The request URL is invalid.");
 });
 
 app.listen(SERVER_PORT, () => {
