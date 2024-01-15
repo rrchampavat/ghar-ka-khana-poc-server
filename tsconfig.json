@@ -34,6 +34,7 @@
       "@middlewares/*": ["middlewares/*"],
       "@routes/*": ["routes/*"],
       "@types/*": ["types/*"],
+      "@utils/*": ["utils/*"],
       "@validation-schemas/*": ["validation-schemas/*"]
     }
   },

@@ -1,8 +1,5 @@
 import { z } from "zod";
-import {
-  contactNoRegEx,
-  passwordRegex
-} from "@constants/regularExpressions.ts";
+import { contactNoRegEx, passwordRegex } from "@constants/regularExpressions";
 
 const registerBodySchema = z.object({
   body: z
@@ -48,13 +45,7 @@ const registerBodySchema = z.object({
         .refine((value) => contactNoRegEx.test(String(value)), {
           message:
             "Ensure that the contact number is a string consisting of 10 numeric characters."
-        }),
-      userImage: z
-        .string({
-          invalid_type_error:
-            "Please provide the user image link in string format."
         })
-        .nullable()
     })
     .strict()
 });

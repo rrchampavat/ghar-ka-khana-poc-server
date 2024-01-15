@@ -1,10 +1,10 @@
-import validate from "@middlewares/schemaValidation.ts";
-import registerSchema from "@validation-schemas/authSchemas/registerSchema.ts";
-import { registerUser } from "contollers/authController.ts";
+import { registerUser } from "@controllers/authController";
 import { Router } from "express";
+import validate from "@middlewares/schemaValidation";
+import registerBodySchema from "@validation-schemas/authSchemas/registerSchema";
 
 const router: Router = Router();
 
-router.post("/register", validate(registerSchema), registerUser);
+router.post("/register", validate(registerBodySchema), registerUser);
 
 export default router;

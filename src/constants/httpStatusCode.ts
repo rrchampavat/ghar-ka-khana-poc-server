@@ -10,6 +10,7 @@ export const httpStatusCode = {
   NOT_FOUND: 404,
   SERVER_ERROR: 500
 };
+
 export const statusMessages: { [key: number | string]: string } = {
   200: "Data retrieved successfully.",
   201: "The data has been successfully inserted.",

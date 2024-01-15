@@ -4,5 +4,4 @@ interface REGISTER_BODY {
   password: string;
   email: string;
   contactNo: number;
-  userImage: string;
 }

@@ -1,15 +1,18 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { SERVER_PORT } from "@constants/envVars";
+import {
+  SERVER_PORT,
+  UPLOADTHING_APP_ID,
+  UPLOADTHING_SECRET
+} from "@constants/envVars";
 import swaggerUi from "swagger-ui-express";
 import specs from "../swagger";
-import userRoutes from "@routes/userRoutes.ts";
-import authRoutes from "@routes/authRoutes.ts";
-import {
-  logErrorMiddleware,
-  returnError
-} from "@middlewares/errorMiddleware.ts";
+import userRoutes from "@routes/userRoutes";
+import authRoutes from "@routes/authRoutes";
+import { logErrorMiddleware, returnError } from "@middlewares/errorMiddleware";
+import { createUploadthingExpressHandler } from "uploadthing/express";
+import { ourFileRouter } from "@controllers/imageController";
 
 dotenv.config();
 
@@ -32,6 +35,16 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/api/v1/auth", authRoutes);
 
 app.use("/api/v1/users", userRoutes);
+app.use(
+  "/api/uploadthing",
+  createUploadthingExpressHandler({
+    router: ourFileRouter,
+    config: {
+      uploadthingId: UPLOADTHING_APP_ID,
+      uploadthingSecret: UPLOADTHING_SECRET
+    }
+  })
+);
 
 app.use(logErrorMiddleware);
 app.use(returnError);

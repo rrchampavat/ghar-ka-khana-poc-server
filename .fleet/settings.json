@@ -1,0 +1,45 @@
+{
+  "plugins": [
+    {
+      "type": "add",
+      "pluginName": "fleet.ai"
+    },
+    {
+      "type": "add",
+      "pluginName": "fleet.css"
+    },
+    {
+      "type": "add",
+      "pluginName": "fleet.docker"
+    },
+    {
+      "type": "add",
+      "pluginName": "fleet.emmet"
+    },
+    {
+      "type": "add",
+      "pluginName": "fleet.git.frontend"
+    },
+    {
+      "type": "add",
+      "pluginName": "fleet.image.view"
+    },
+    {
+      "type": "add",
+      "pluginName": "fleet.intellij"
+    },
+    {
+      "type": "add",
+      "pluginName": "fleet.json"
+    },
+    {
+      "type": "add",
+      "pluginName": "fleet.javascript"
+    },
+    {
+      "type": "add",
+      "pluginName": "fleet.tailwindcss"
+    }
+  ],
+  "editor.formatOnSave": true
+}

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { NextFunction, Request, Response } from "express";
-import { APIError, DBError } from "error-handling/extended-error.ts";
-import { httpStatusCode, statusMessages } from "@constants/httpStatusCode.ts";
+import { APIError, DBError } from "error-handling/extended-error";
+import { httpStatusCode, statusMessages } from "@constants/httpStatusCode";
 import { Error } from "postgres";
 
 export const logError = (ERROR: Error) => {
@@ -16,7 +16,7 @@ export const logErrorMiddleware = async (
 ) => {
   logError(err);
 
-  if (err.code) {
+  if (Number(err.code)) {
     return next(new DBError(err));
   }
 
