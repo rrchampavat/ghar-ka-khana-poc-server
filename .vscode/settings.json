@@ -9,14 +9,5 @@
   "eslint.format.enable": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
-  },
-  "editor.fontFamily": "JetBrains Mono NL Regular",
-  "editor.codeLensFontFamily": "JetBrains Mono NL Regular",
-  "editor.inlayHints.fontFamily": "JetBrains Mono NL Regular",
-  "debug.console.fontFamily": "JetBrains Mono NL Regular",
-  "scm.inputFontFamily": "JetBrains Mono NL Regular",
-  "terminal.integrated.fontFamily": "JetBrains Mono NL Regular",
-  "notebook.output.fontFamily": "JetBrains Mono NL Regular",
-  "chat.editor.fontFamily": "JetBrains Mono NL Regular",
-  "rest-client.fontFamily": "JetBrains Mono NL Regular"
+  }
 }
