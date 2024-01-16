@@ -6,6 +6,6 @@ module.exports = {
     // `pnpm run test`
   ],
 
-  "**/*.(md|json|yaml|cjs|html)": (filenames) =>
+  "**/*.(md|json|yaml|cjs|html|yml)": (filenames) =>
     `npx prettier --write ${filenames.join(" ")}`
 };
