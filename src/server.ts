@@ -14,6 +14,7 @@ import { logErrorMiddleware, returnError } from "@middlewares/errorMiddleware";
 import { createUploadthingExpressHandler } from "uploadthing/express";
 import { ourFileRouter } from "@controllers/imageController";
 import { badRequestRes, fetchSuccess } from "@helpers/httpResponseGenerator";
+import validateToken from "@middlewares/validateToken";
 
 dotenv.config();
 
@@ -34,6 +35,9 @@ app.get("/", (_request: Request, res: Response) => {
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use("/api/v1/auth", authRoutes);
+
+// @ts-expect-error
+app.use(validateToken);
 
 app.use("/api/v1/users", userRoutes);
 app.use(
