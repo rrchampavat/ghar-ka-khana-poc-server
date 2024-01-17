@@ -160,6 +160,6 @@ export const login = async (
       accessToken
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
