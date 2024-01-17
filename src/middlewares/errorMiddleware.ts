@@ -29,7 +29,7 @@ export const returnError = (
   res: Response,
   _next: NextFunction
 ) => {
-  return res.status(err.statusCode || httpStatusCode["SERVER_ERROR"]).json({
+  return res.status(err.statusCode || httpStatusCode.SERVER_ERROR).json({
     message: err.description || statusMessages["500"],
     success: false
   });

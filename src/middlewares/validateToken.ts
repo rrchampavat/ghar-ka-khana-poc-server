@@ -41,7 +41,7 @@ const validateToken = async (
 
     return next();
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
