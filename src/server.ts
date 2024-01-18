@@ -1,6 +1,5 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import {
   SERVER_PORT,
   UPLOADTHING_APP_ID,
@@ -16,9 +15,7 @@ import { ourFileRouter } from "@controllers/imageController";
 import { badRequestRes, fetchSuccess } from "@helpers/httpResponseGenerator";
 import validateToken from "@middlewares/validateToken";
 
-dotenv.config();
-
-if (!process.env.SERVER_PORT) {
+if (!SERVER_PORT) {
   process.exit(1);
 }
 
@@ -35,6 +32,10 @@ app.get("/", (_request: Request, res: Response) => {
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use("/api/v1/auth", authRoutes);
+
+app.use("/api/v1/auth/*", (_req: Request, res: Response) => {
+  badRequestRes(res, "The request URL is invalid.");
+});
 
 // @ts-expect-error
 app.use(validateToken);
@@ -54,7 +55,7 @@ app.use(
 app.use(logErrorMiddleware);
 app.use(returnError);
 
-app.use("*", (_req: Request, res: Response) => {
+app.use("/api/v1/*", (_req: Request, res: Response) => {
   badRequestRes(res, "The request URL is invalid.");
 });
 
