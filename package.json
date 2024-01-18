@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only src/server.ts",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "build": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only src/server.ts",
+    "build": "pnpm install && ts-node-dev -r tsconfig-paths/register --respawn --transpile-only src/server.ts",
     "prepare": "husky install",
     "db:generate": "drizzle-kit generate:pg",
     "db:push": "drizzle-kit push:pg",
