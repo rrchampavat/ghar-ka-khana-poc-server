@@ -10,7 +10,7 @@ const createApiResponse = (
 };
 
 export const notFoundRes = (res: Response, message?: string) => {
-  return createApiResponse(res, httpStatusCode.NOT_FOUND, {
+  return createApiResponse(res, httpStatusCode.SUCCESS, {
     message: message || statusMessages[httpStatusCode.NOT_FOUND]!,
     success: false
   });
