@@ -20,6 +20,6 @@ export default {
     password: DB_PASSWORD,
     database: DB_NAME
     // connectionString:
-    //   dbConnectionString
+    //   dbConnectionString,
   }
 } satisfies Config;

@@ -1,9 +1,12 @@
+import { DB_CONNECTION_STRING } from "@constants/envVars";
+import * as schema from "@db/schemas/userSchema";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import * as schema from "@db/schemas/userSchema";
-import { DB_CONNECTION_STRING } from "@constants/envVars";
 
-const client = postgres(DB_CONNECTION_STRING);
+const client = postgres(DB_CONNECTION_STRING, {
+  keep_alive: 1,
+  connect_timeout: 5000
+});
 
 const db = drizzle(client, { schema });
 
