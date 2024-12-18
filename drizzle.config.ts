@@ -1,6 +1,7 @@
 import "dotenv/config";
 import type { Config } from "drizzle-kit";
 import {
+  DB_CONNECTION_STRING,
   DB_HOST,
   DB_NAME,
   DB_PASSWORD,
@@ -19,6 +20,7 @@ export default {
     user: DB_USER,
     password: DB_PASSWORD,
     database: DB_NAME,
+    connectionString: DB_CONNECTION_STRING,
     ssl: false
   }
 } satisfies Config;
