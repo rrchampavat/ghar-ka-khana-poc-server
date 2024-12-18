@@ -25,7 +25,7 @@ app.use(cors());
 app.use(express.json()); // used to get data from JSON type
 app.use(express.urlencoded({ extended: true })); // used to get data from URL or form data
 
-app.set("trust proxy", true);
+app.set("trust proxy", 1);
 
 app.get("/", (_request: Request, res: Response) => {
   fetchSuccess(res, "Server is up.");
