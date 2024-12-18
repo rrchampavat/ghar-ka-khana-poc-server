@@ -1,19 +1,19 @@
-import express, { Request, Response } from "express";
-import cors from "cors";
 import {
   SERVER_PORT,
   UPLOADTHING_APP_ID,
   UPLOADTHING_SECRET
 } from "@constants/envVars";
-import swaggerUi from "swagger-ui-express";
-import specs from "../swagger";
-import userRoutes from "@routes/userRoutes";
-import authRoutes from "@routes/authRoutes";
-import { logErrorMiddleware, returnError } from "@middlewares/errorMiddleware";
-import { createUploadthingExpressHandler } from "uploadthing/express";
 import { ourFileRouter } from "@controllers/imageController";
 import { badRequestRes, fetchSuccess } from "@helpers/httpResponseGenerator";
+import { logErrorMiddleware, returnError } from "@middlewares/errorMiddleware";
 import validateToken from "@middlewares/validateToken";
+import authRoutes from "@routes/authRoutes";
+import userRoutes from "@routes/userRoutes";
+import cors from "cors";
+import express, { Request, Response } from "express";
+import swaggerUi from "swagger-ui-express";
+import { createUploadthingExpressHandler } from "uploadthing/express";
+import specs from "../swagger";
 
 if (!SERVER_PORT) {
   process.exit(1);
@@ -24,6 +24,8 @@ const app = express();
 app.use(cors());
 app.use(express.json()); // used to get data from JSON type
 app.use(express.urlencoded({ extended: true })); // used to get data from URL or form data
+
+app.set("trust proxy", true);
 
 app.get("/", (_request: Request, res: Response) => {
   fetchSuccess(res, "Server is up.");

@@ -1,3 +1,5 @@
+import "dotenv/config";
+import type { Config } from "drizzle-kit";
 import {
   DB_HOST,
   DB_NAME,
@@ -5,8 +7,6 @@ import {
   DB_PORT,
   DB_USER
 } from "./src/constants/envVars";
-import "dotenv/config";
-import type { Config } from "drizzle-kit";
 
 export default {
   schema: "./src/db/schemas/*",
