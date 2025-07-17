@@ -1,3 +1,5 @@
+import { roles } from "@db/schemas/roleSchema";
+import mySchema from "@db/schemas/schema";
 import { InferSelectModel, relations } from "drizzle-orm";
 import {
   bigint,
@@ -7,8 +9,6 @@ import {
   timestamp,
   varchar
 } from "drizzle-orm/pg-core";
-import mySchema from "@db/schemas/schema";
-import { roles } from "@db/schemas/roleSchema";
 
 export const users = mySchema.table("users", {
   id: bigserial("id", { mode: "number" }).primaryKey(),
@@ -34,4 +34,4 @@ export const userRelations = relations(users, ({ one }) => ({
   })
 }));
 
-export type User = InferSelectModel<typeof users>;
+export type USER = InferSelectModel<typeof users>;

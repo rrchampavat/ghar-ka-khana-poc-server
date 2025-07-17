@@ -1,10 +1,10 @@
-import { login } from "./../controllers/authController";
 import { registerUser } from "@controllers/authController";
-import { Router } from "express";
-import validate from "@middlewares/schemaValidation";
-import registerBodySchema from "@validation-schemas/authSchemas/registerSchema";
-import loginSchema from "@validation-schemas/authSchemas/loginSchema";
 import { loginAPIRateLimiter } from "@middlewares/rateLimit";
+import validate from "@middlewares/schemaValidation";
+import loginSchema from "@validation-schemas/authSchemas/loginSchema";
+import registerBodySchema from "@validation-schemas/authSchemas/registerSchema";
+import { Router } from "express";
+import { login } from "./../controllers/authController";
 
 const router: Router = Router();
 

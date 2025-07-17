@@ -1,9 +1,7 @@
 import { BCRYPT_SALT } from "@constants/envVars";
+import { JWT_EXPIRES_IN } from "@constants/jwt";
 import db from "@db/connection";
 import { users } from "@db/schemas/userSchema";
-import bcrypt from "bcryptjs";
-import { and, eq, isNull, or } from "drizzle-orm";
-import { NextFunction, Request, Response } from "express";
 import {
   badRequestRes,
   duplicateEntry,
@@ -11,10 +9,11 @@ import {
   notFoundRes,
   postSuccess
 } from "@helpers/httpResponseGenerator";
-// @ts-expect-error
 import { LOGIN_REQUEST, REGISTER_REQUEST } from "@types/auth/reqBodyTypes";
-import { JWT_EXPIRES_IN } from "@constants/jwt";
 import generateJwtToken from "@utils/generateJwtToken";
+import bcrypt from "bcryptjs";
+import { and, eq, isNull, or } from "drizzle-orm";
+import { NextFunction, Request, Response } from "express";
 
 export const registerUser = async (
   req: Request,

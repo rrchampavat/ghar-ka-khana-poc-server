@@ -1,5 +1,5 @@
-import BaseError from "error-handling/base-error";
 import { httpStatusCode, statusMessages } from "@constants/httpStatusCode";
+import BaseError from "error-handling/base-error";
 import { TokenExpiredError } from "jsonwebtoken";
 
 export class APIError extends BaseError {

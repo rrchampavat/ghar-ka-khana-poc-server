@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { contactNoRegEx, passwordRegex } from "@constants/regularExpressions";
+import { z } from "zod";
 
 const registerBodySchema = z.object({
   body: z

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import { NextFunction, Request, Response } from "express";
-import { APIError, DBError } from "error-handling/extended-error";
 import { httpStatusCode, statusMessages } from "@constants/httpStatusCode";
+import { APIError, DBError } from "error-handling/extended-error";
+import { NextFunction, Request, Response } from "express";
 import { Error } from "postgres";
 
 export const logError = (ERROR: Error) => {

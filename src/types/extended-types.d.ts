@@ -1,7 +1,7 @@
+import { USER } from "@db/schemas/userSchema";
 import { Request } from "express";
-import { User } from "@db/schemas/userSchema";
 
-type REQUEST_USER = Omit<User, "password">;
+type REQUEST_USER = Omit<USER, "password">;
 
 interface CUSTOM_REQUEST extends Request {
   user: REQUEST_USER;

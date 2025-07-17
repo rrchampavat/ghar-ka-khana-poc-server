@@ -7,7 +7,6 @@ export default {
   out: "./drizzle",
   schemaFilter: ["ecommerce-schema"],
   driver: "pg",
-  dialect: "postgresql",
   dbCredentials: {
     // host: DB_HOST,
     // port: DB_PORT,

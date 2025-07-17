@@ -39,7 +39,6 @@ app.use("/api/v1/auth/*", (_req: Request, res: Response) => {
   badRequestRes(res, "The request URL is invalid.");
 });
 
-// @ts-expect-error
 app.use(validateToken);
 
 app.use("/api/v1/users", userRoutes);
