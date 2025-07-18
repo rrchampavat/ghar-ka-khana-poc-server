@@ -3,7 +3,7 @@ import { BCRYPT_SALT } from "@constants/envVars";
 import db, { client } from "@db/connection";
 import { users } from "@db/schemas/userSchema";
 import bcrypt from "bcryptjs";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { reset, seed } from "drizzle-seed";
 
 const seedUsers = async () => {
@@ -59,6 +59,15 @@ const seedUsers = async () => {
         role: 1
       })
       .where(eq(users.id, 1));
+
+    await db.execute(sql`
+  SELECT setval(
+    pg_get_serial_sequence('"ecommerce-schema"."users"', 'id'),
+    COALESCE(MAX(id), 1),
+    true
+  )
+  FROM "ecommerce-schema"."users";
+`);
   } catch (error) {
     console.error("Error during seeding users:", error);
   } finally {

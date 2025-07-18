@@ -7,14 +7,16 @@ const createApiResponse = (
   statusCode: number,
   options: API_RESPONSE_OPTIONS
 ): Response => {
+  console.log("======================================");
   console.log(
     `${res.req.method} ${res.req.protocol}://${res.req.rawHeaders[1]}${res.req.originalUrl}`
   );
 
-  delete res.req.params.password; // Remove sensitive data from logs
+  delete res.req.body.password; // Remove sensitive data from logs
 
   console.log("Params: ", res.req.params);
   console.log("Request body: ", res.req.body);
+  console.log("======================================");
 
   return res.status(statusCode).json(options);
 };
