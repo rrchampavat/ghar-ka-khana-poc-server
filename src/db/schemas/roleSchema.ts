@@ -3,7 +3,7 @@ import { InferSelectModel, relations } from "drizzle-orm";
 import { char, serial, timestamp } from "drizzle-orm/pg-core";
 import { users } from "./userSchema";
 
-export const roles = mySchema.table("roles", {
+export const roles = mySchema.table("role_master", {
   id: serial("id").primaryKey(),
   role_name: char("role_name", { length: 15 }).notNull(),
   created_at: timestamp("created_at", { withTimezone: true })

@@ -11,3 +11,4 @@ const client = postgres(DB_CONNECTION_STRING, {
 const db = drizzle(client, { schema });
 
 export default db;
+export { client };

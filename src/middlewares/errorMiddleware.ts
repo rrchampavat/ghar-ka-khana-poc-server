@@ -4,8 +4,15 @@ import { APIError, DBError } from "error-handling/extended-error";
 import { NextFunction, Request, Response } from "express";
 import { Error } from "postgres";
 
-export const logError = (ERROR: Error) => {
-  console.error({ ERROR });
+export const logError = ({
+  error,
+  message
+}: {
+  error: Error;
+  message: string;
+}) => {
+  console.error(`<===== ${message} =====>`);
+  console.error(error);
 };
 
 export const logErrorMiddleware = async (
@@ -14,9 +21,7 @@ export const logErrorMiddleware = async (
   _res: Response,
   next: NextFunction
 ) => {
-  logError(err);
-
-  if (Number(err.code)) {
+  if (err.constructor.name === "PostgresError") {
     return next(new DBError(err));
   }
 

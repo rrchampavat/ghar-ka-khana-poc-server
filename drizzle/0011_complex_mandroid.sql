@@ -1,0 +1,1 @@
+ALTER TABLE "ecommerce-schema"."users" ALTER COLUMN "contact_no" SET DATA TYPE varchar(20);

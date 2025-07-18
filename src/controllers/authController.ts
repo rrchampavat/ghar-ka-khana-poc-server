@@ -46,7 +46,7 @@ export const registerUser = async (
     if (existingEmail.length) {
       return duplicateEntry(
         res,
-        "This email address has already been registered. Please use a different one."
+        "This email is already registered. Please use another one."
       );
     }
 
@@ -64,7 +64,7 @@ export const registerUser = async (
     if (existingContactNo.length) {
       return duplicateEntry(
         res,
-        "This contact number is already associated with an account. Please use a different one."
+        "This number is already in use. Please try a different one."
       );
     }
 

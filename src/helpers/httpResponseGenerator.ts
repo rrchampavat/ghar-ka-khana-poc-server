@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { httpStatusCode, statusMessages } from "@constants/httpStatusCode";
 import { Response } from "express";
 
@@ -6,6 +7,15 @@ const createApiResponse = (
   statusCode: number,
   options: API_RESPONSE_OPTIONS
 ): Response => {
+  console.log(
+    `${res.req.method} ${res.req.protocol}://${res.req.rawHeaders[1]}${res.req.originalUrl}`
+  );
+
+  delete res.req.params.password; // Remove sensitive data from logs
+
+  console.log("Params: ", res.req.params);
+  console.log("Request body: ", res.req.body);
+
   return res.status(statusCode).json(options);
 };
 
@@ -69,7 +79,7 @@ export const badRequestRes = (res: Response, message?: string) => {
 };
 
 export const duplicateEntry = (res: Response, message?: string) => {
-  return createApiResponse(res, httpStatusCode.SUCCESS, {
+  return createApiResponse(res, httpStatusCode.BAD_REQUEST, {
     message: message || statusMessages.DUPLICATE_ENTRY!,
     success: false
   });

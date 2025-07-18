@@ -2,7 +2,6 @@ import { roles } from "@db/schemas/roleSchema";
 import mySchema from "@db/schemas/schema";
 import { InferSelectModel, relations } from "drizzle-orm";
 import {
-  bigint,
   bigserial,
   integer,
   text,
@@ -12,12 +11,12 @@ import {
 
 export const users = mySchema.table("users", {
   id: bigserial("id", { mode: "number" }).primaryKey(),
-  first_name: text("first_name").notNull(),
-  last_name: text("last_name").notNull(),
+  first_name: varchar("first_name", { length: 15 }).notNull(),
+  last_name: varchar("last_name", { length: 15 }).notNull(),
   password: varchar("password").notNull(),
   email: varchar("email").notNull().unique(),
-  contact_no: bigint("contact_no", { mode: "number" }).notNull().unique(),
-  user_image: varchar("user_image"),
+  contact_no: varchar("contact_no", { length: 20 }).notNull().unique(),
+  user_image: text("user_image"),
   role: integer("role_id").notNull(),
   created_at: timestamp("created_at", { withTimezone: true })
     .defaultNow()
