@@ -1,5 +1,5 @@
 import { httpStatusCode, statusMessages } from "@constants/httpStatusCode";
-import { logError } from "@middlewares/errorMiddleware";
+import { logError } from "@middlewares/errorHandler";
 import BaseError from "error-handling/base-error";
 import { TokenExpiredError } from "jsonwebtoken";
 

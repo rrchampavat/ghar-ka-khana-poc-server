@@ -1,4 +1,4 @@
-import { ourFileRouter } from "@controllers/imageController";
+import { ourFileRouter } from "@controllers/image.controller";
 import { Router } from "express";
 import { createUploadthingExpressHandler } from "uploadthing/express";
 

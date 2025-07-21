@@ -3,12 +3,12 @@ import {
   UPLOADTHING_APP_ID,
   UPLOADTHING_SECRET
 } from "@constants/envVars";
-import { ourFileRouter } from "@controllers/imageController";
+import { ourFileRouter } from "@controllers/image.controller";
 import { badRequestRes, fetchSuccess } from "@helpers/httpResponseGenerator";
-import { logErrorMiddleware, returnError } from "@middlewares/errorMiddleware";
-import validateToken from "@middlewares/validateToken";
-import authRoutes from "@routes/authRoutes";
-import userRoutes from "@routes/userRoutes";
+import { logErrorMiddleware, returnError } from "@middlewares/errorHandler";
+import validateToken from "@middlewares/tokenValidator";
+import authRoutes from "@routes/auth.routes";
+import userRoutes from "@routes/user.routes";
 import cors from "cors";
 import express, { Request, Response } from "express";
 import swaggerUi from "swagger-ui-express";
