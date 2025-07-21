@@ -4,6 +4,7 @@ import { userRoles } from "@db/schemas/userRolesSchema";
 import { users } from "@db/schemas/usersSchema";
 import hasPermission from "@helpers/checkPermission";
 import {
+  badRequestRes,
   fetchSuccess,
   forbiddenRes,
   notFoundRes
@@ -58,6 +59,10 @@ export const getUserById = async (
   try {
     const { user, params } = req;
     const userId = params.userID!;
+
+    if (userId === "undefined") {
+      return badRequestRes(res, "Provide user id.");
+    }
 
     const hasUserReadPermission = await hasPermission(user.id, "read:user");
 
