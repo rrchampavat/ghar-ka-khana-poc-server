@@ -1,4 +1,4 @@
-import { USER } from "@db/schemas/userSchema";
+import { USER } from "@db/schemas/usersSchema";
 import { Request } from "express";
 
 type REQUEST_USER = Omit<USER, "password">;

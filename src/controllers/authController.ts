@@ -1,7 +1,7 @@
 import { BCRYPT_SALT } from "@constants/envVars";
 import { JWT_EXPIRES_IN } from "@constants/jwt";
 import db from "@db/connection";
-import { users } from "@db/schemas/userSchema";
+import { users } from "@db/schemas/usersSchema";
 import {
   badRequestRes,
   duplicateEntry,

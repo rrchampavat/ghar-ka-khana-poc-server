@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { BCRYPT_SALT } from "@constants/envVars";
 import db, { client } from "@db/connection";
-import { users } from "@db/schemas/userSchema";
+import { users } from "@db/schemas/usersSchema";
 import bcrypt from "bcryptjs";
 import { eq, sql } from "drizzle-orm";
 import { reset, seed } from "drizzle-seed";
@@ -28,9 +28,6 @@ const seedUsers = async () => {
           email: f.email(),
           contact_no: f.phoneNumber(),
           user_image: f.default({ defaultValue: null }),
-          role: f.valuesFromArray({
-            values: [2, 3, 4]
-          }),
           created_at: f.default({ defaultValue: new Date() }),
           updated_at: f.default({ defaultValue: null }),
           deleted_at: f.default({ defaultValue: null })
@@ -55,8 +52,7 @@ const seedUsers = async () => {
         last_name: "Champavat",
         email: "rrchampavat1110@gmail.com",
         contact_no: "8000012801",
-        password: customPassword,
-        role: 1
+        password: customPassword
       })
       .where(eq(users.id, 1));
 

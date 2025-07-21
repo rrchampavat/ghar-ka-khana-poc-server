@@ -5,8 +5,11 @@ import path from "path";
 
 async function runSeedsInOrder() {
   const seedFiles = [
-    "roleSeed.ts",
-    "userSeed.ts"
+    "rolesSeed.ts",
+    "permissionsSeed.ts",
+    "usersSeed.ts",
+    "rolePermissionsSeed.ts",
+    "userRolesSeed.ts"
     // Add more seed files in the order you want them to run
   ];
 

@@ -1,5 +1,5 @@
 import { DB_CONNECTION_STRING } from "@constants/envVars";
-import * as schema from "@db/schemas/userSchema";
+import * as schema from "@db/schemas/usersSchema";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 

@@ -1,11 +1,12 @@
 import mySchema from "@db/schemas/schema";
 import { InferSelectModel, relations } from "drizzle-orm";
-import { char, serial, timestamp } from "drizzle-orm/pg-core";
-import { users } from "./userSchema";
+import { serial, timestamp, varchar } from "drizzle-orm/pg-core";
+import { rolePermissions } from "./rolePermissionsSchema";
+import { userRoles } from "./userRolesSchema";
 
-export const roles = mySchema.table("role_master", {
+export const roles = mySchema.table("roles", {
   id: serial("id").primaryKey(),
-  role_name: char("role_name", { length: 15 }).notNull(),
+  name: varchar("name", { length: 15 }).notNull().unique(),
   created_at: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -14,7 +15,8 @@ export const roles = mySchema.table("role_master", {
 });
 
 export const rolesRelations = relations(roles, ({ many }) => ({
-  users: many(users, { relationName: "roles" })
+  userRoles: many(userRoles),
+  rolePermissions: many(rolePermissions)
 }));
 
 export type USER_ROLE = InferSelectModel<typeof roles>;

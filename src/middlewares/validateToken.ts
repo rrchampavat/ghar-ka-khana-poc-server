@@ -1,6 +1,6 @@
 import { JWT_SECRET } from "@constants/envVars";
 import db from "@db/connection";
-import { users } from "@db/schemas/userSchema";
+import { users } from "@db/schemas/usersSchema";
 import { notAuthorizedRes } from "@helpers/httpResponseGenerator";
 import { CUSTOM_REQUEST } from "@types/extended-types";
 import { and, eq, isNull } from "drizzle-orm";
