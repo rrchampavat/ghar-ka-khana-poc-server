@@ -77,18 +77,13 @@ export const registerUser = async (
         last_name: lastName,
         email: email,
         password: hashedPassword,
-        contact_no: contactNo,
-        role: 0
+        contact_no: contactNo
       })
-      .returning({ user_id: users.id, user_role: users.role });
+      .returning({ user_id: users.id });
 
     const userID = user[0]?.user_id;
-    const userRole = user[0]?.user_role;
 
-    const accessToken = generateJwtToken(
-      { user_id: userID, user_role: userRole },
-      JWT_EXPIRES_IN
-    );
+    const accessToken = generateJwtToken({ user_id: userID }, JWT_EXPIRES_IN);
 
     // const insertUserQuery = sql`INSERT INTO ${users} (first_name, last_name, email, password, contact_no, role_id, user_image)
     //         VALUES (${firstName}, ${lastName}, ${email}, ${hashedPassword}, ${contactNo}, 0, ${userImage})`;
@@ -117,7 +112,7 @@ export const login = async (
 
     const { emailOrContact, password } = body;
 
-    const contactNo = Number(emailOrContact!) || 0;
+    const contactNo = emailOrContact!;
 
     const existingUser = await db.query.users.findFirst({
       columns: {
@@ -148,7 +143,7 @@ export const login = async (
     }
 
     const accessToken = generateJwtToken({
-      user_role: existingUser.role,
+      // user_role: existingUser.role,
       user_id: existingUser.id
     });
 

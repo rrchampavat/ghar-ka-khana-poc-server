@@ -1,12 +1,17 @@
 /* eslint-disable no-console */
 import db, { client } from "@db/connection";
 import { userRoles } from "@db/schemas/userRolesSchema";
+import { sql } from "drizzle-orm";
 import { reset } from "drizzle-seed";
 
 const seedUserRoles = async () => {
   try {
     console.log("<===== RESETTING USER_ROLES TABLE =====>");
     await reset(db, { userRoles });
+
+    await db.execute(
+      sql`TRUNCATE TABLE "ecommerce-schema".user_roles RESTART IDENTITY CASCADE;`
+    );
 
     console.log("<===== SEEDING USER_ROLES =====>");
 

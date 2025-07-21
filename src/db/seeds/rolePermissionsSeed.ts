@@ -1,12 +1,17 @@
 /* eslint-disable no-console */
 import db, { client } from "@db/connection";
 import { rolePermissions } from "@db/schemas/rolePermissionsSchema";
+import { sql } from "drizzle-orm";
 import { reset } from "drizzle-seed";
 
 const seedRolePermissions = async () => {
   try {
     console.log("<===== RESETTING ROLE_PERMISSIONS TABLE =====>");
     await reset(db, { rolePermissions });
+
+    await db.execute(
+      sql`TRUNCATE TABLE "ecommerce-schema".role_permissions RESTART IDENTITY CASCADE;`
+    );
 
     console.log("<===== SEEDING ROLE_PERMISSIONS =====>");
 
@@ -33,6 +38,7 @@ const seedRolePermissions = async () => {
       },
       {
         role_id: 2,
+        // !Change permission here
         permission_id: 4,
         created_at: new Date()
       }

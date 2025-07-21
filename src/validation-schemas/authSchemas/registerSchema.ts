@@ -41,7 +41,7 @@ const registerBodySchema = z.object({
         })
         .email("Kindly enter a valid email address."),
       contactNo: z
-        .number()
+        .string()
         .refine((value) => contactNoRegEx.test(String(value)), {
           message:
             "Ensure that the contact number is a string consisting of 10 numeric characters."

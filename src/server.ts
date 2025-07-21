@@ -41,7 +41,7 @@ app.use("/api/v1/auth/*", (_req: Request, res: Response) => {
 
 app.use(validateToken);
 
-app.use("/api/v1/users", userRoutes);
+app.use("/api/v1", userRoutes);
 app.use(
   "/api/uploadthing",
   createUploadthingExpressHandler({

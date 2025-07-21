@@ -11,6 +11,10 @@ const seedUsers = async () => {
     console.log("<===== RESETTING USERS TABLE =====>");
     await reset(db, { users });
 
+    await db.execute(
+      sql`TRUNCATE TABLE "ecommerce-schema".users RESTART IDENTITY CASCADE;`
+    );
+
     const defaultPassword = "User@1234";
     const hashedPassword = await bcrypt.hash(defaultPassword, BCRYPT_SALT);
 
@@ -56,14 +60,14 @@ const seedUsers = async () => {
       })
       .where(eq(users.id, 1));
 
-    await db.execute(sql`
-  SELECT setval(
-    pg_get_serial_sequence('"ecommerce-schema"."users"', 'id'),
-    COALESCE(MAX(id), 1),
-    true
-  )
-  FROM "ecommerce-schema"."users";
-`);
+    //   await db.execute(sql`
+    // SELECT setval(
+    //   pg_get_serial_sequence('"ecommerce-schema"."users"', 'id'),
+    //   COALESCE(MAX(id), 1),
+    //   true
+    // )
+    // FROM "ecommerce-schema"."users";
+    // `);
   } catch (error) {
     console.error("Error during seeding users:", error);
   } finally {

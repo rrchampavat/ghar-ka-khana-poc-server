@@ -113,6 +113,20 @@
       "when": 1752848927134,
       "tag": "0015_rare_mojo",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1753088395705,
+      "tag": "0016_fine_shadow_king",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1753088578148,
+      "tag": "0017_ambitious_robin_chapel",
+      "breakpoints": true
     }
   ]
 }
