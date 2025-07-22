@@ -1,12 +1,13 @@
 import { BCRYPT_SALT } from "@constants/envVars";
 import { JWT_EXPIRES_IN } from "@constants/jwt";
 import db from "@db/connection";
+import { roles } from "@db/schemas/rolesSchema";
+import { userRoles } from "@db/schemas/userRolesSchema";
 import { users } from "@db/schemas/usersSchema";
 import {
   badRequestRes,
   duplicateEntry,
   fetchSuccess,
-  notFoundRes,
   postSuccess
 } from "@helpers/httpResponseGenerator";
 import { LOGIN_REQUEST, REGISTER_REQUEST } from "@types/auth/reqBodyTypes";
@@ -114,20 +115,32 @@ export const login = async (
 
     const contactNo = emailOrContact!;
 
-    const existingUser = await db.query.users.findFirst({
-      columns: {
-        created_at: false,
-        updated_at: false,
-        deleted_at: false
-      },
-      where: and(
-        or(eq(users.email, emailOrContact!), eq(users.contact_no, contactNo)),
-        isNull(users.deleted_at)
-      )
-    });
+    const existingUser: USER[] = await db
+      .select({
+        id: users.id,
+        first_name: users.first_name,
+        last_name: users.last_name,
+        email: users.email,
+        contact_no: users.contact_no,
+        role: roles.id,
+        user_image: users.user_image,
+        created_at: users.created_at,
+        updated_at: users.updated_at,
+        deleted_at: users.deleted_at,
+        password: users.password
+      })
+      .from(users)
+      .innerJoin(userRoles, eq(userRoles.user_id, users.id))
+      .innerJoin(roles, eq(roles.id, userRoles.role_id))
+      .where(
+        and(
+          or(eq(users.email, emailOrContact!), eq(users.contact_no, contactNo)),
+          isNull(users.deleted_at)
+        )
+      );
 
-    if (!existingUser?.id) {
-      return notFoundRes(
+    if (!existingUser.length) {
+      return badRequestRes(
         res,
         "No user was found with the provided email or contact number."
       );
@@ -135,7 +148,7 @@ export const login = async (
 
     const isPasswordMatch = await bcrypt.compare(
       password,
-      existingUser.password
+      existingUser[0]!.password!
     );
 
     if (!isPasswordMatch) {
@@ -143,11 +156,11 @@ export const login = async (
     }
 
     const accessToken = generateJwtToken({
-      // user_role: existingUser.role,
-      user_id: existingUser.id
+      role: existingUser[0]!.role,
+      user_id: existingUser[0]?.id
     });
 
-    const { password: userPassword, ...restUser } = existingUser;
+    const { password: userPassword, ...restUser } = existingUser[0]!;
 
     return fetchSuccess(res, "You have successfully logged in.", {
       user: restUser,

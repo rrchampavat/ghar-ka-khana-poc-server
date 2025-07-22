@@ -36,7 +36,7 @@ const seedUsers = async () => {
           updated_at: f.default({ defaultValue: null }),
           deleted_at: f.default({ defaultValue: null })
         },
-        count: 10
+        count: 20
       }
     }));
 

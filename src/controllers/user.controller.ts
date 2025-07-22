@@ -24,11 +24,11 @@ export const getAllUsers = async (
     const hasUserReadPermission = await hasPermission(user.id, "read:user");
 
     // Check if the user has permission to view all users
-    if (hasUserReadPermission) {
+    if (!hasUserReadPermission) {
       return forbiddenRes(res, "You do not have permission to view user list.");
     }
 
-    const allUsers: USER[] = await db
+    const allUsers: USER_WO_PASSWORD[] = await db
       .select({
         id: users.id,
         first_name: users.first_name,
@@ -72,7 +72,7 @@ export const getUserById = async (
       return forbiddenRes(res, "You do not have permission to view this user.");
     }
 
-    const userDetails: USER[] = await db
+    const userDetails: USER_WO_PASSWORD[] = await db
       .select({
         id: users.id,
         first_name: users.first_name,

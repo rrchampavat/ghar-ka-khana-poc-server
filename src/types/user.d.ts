@@ -7,4 +7,7 @@ type USER = {
   role: number;
   user_image: string | null;
   role: number;
+  password: string;
 };
+
+type USER_WO_PASSWORD = Omit<USER, "password">;
