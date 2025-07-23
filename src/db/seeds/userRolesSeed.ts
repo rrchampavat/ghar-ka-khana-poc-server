@@ -1,8 +1,16 @@
 /* eslint-disable no-console */
 import db, { client } from "@db/connection";
 import { userRoles } from "@db/schemas/userRolesSchema";
+import { users } from "@db/schemas/usersSchema";
 import { sql } from "drizzle-orm";
 import { reset } from "drizzle-seed";
+
+const getRandomRoleId = () => {
+  const rand = Math.random();
+  if (rand < 0.25) return 2; // 25% chance
+  if (rand < 0.5) return 3; // next 25%
+  return 4; // remaining 50%
+};
 
 const seedUserRoles = async () => {
   try {
@@ -13,41 +21,15 @@ const seedUserRoles = async () => {
       sql`TRUNCATE TABLE "ecommerce-schema".user_roles RESTART IDENTITY CASCADE;`
     );
 
+    const userIDs = await db.select({ id: users.id }).from(users);
+
+    const userRoleEntries = userIDs.map(({ id }) => {
+      if (id === 1) return { user_id: 1, role_id: 1 };
+      return { user_id: id, role_id: getRandomRoleId() };
+    });
+
     console.log("<===== SEEDING USER_ROLES =====>");
-
-    await db.insert(userRoles).values([
-      { user_id: 1, role_id: 1 },
-      { user_id: 2, role_id: 2 },
-      { user_id: 3, role_id: 2 },
-      { user_id: 4, role_id: 3 },
-      { user_id: 5, role_id: 2 },
-      { user_id: 6, role_id: 4 },
-      { user_id: 7, role_id: 4 },
-      { user_id: 8, role_id: 2 },
-      { user_id: 9, role_id: 3 },
-      { user_id: 10, role_id: 3 },
-      { user_id: 11, role_id: 4 },
-      { user_id: 12, role_id: 2 },
-      { user_id: 13, role_id: 4 },
-      { user_id: 14, role_id: 3 },
-      { user_id: 15, role_id: 2 },
-      { user_id: 16, role_id: 3 },
-      { user_id: 17, role_id: 2 },
-      { user_id: 18, role_id: 2 },
-      { user_id: 19, role_id: 2 },
-      { user_id: 20, role_id: 4 },
-      { user_id: 21, role_id: 3 },
-      { user_id: 22, role_id: 4 },
-      { user_id: 23, role_id: 4 },
-      { user_id: 24, role_id: 4 },
-      { user_id: 25, role_id: 4 },
-      { user_id: 26, role_id: 3 },
-      { user_id: 27, role_id: 2 },
-      { user_id: 28, role_id: 4 },
-      { user_id: 29, role_id: 4 },
-      { user_id: 30, role_id: 4 }
-    ]);
-
+    await db.insert(userRoles).values(userRoleEntries);
     console.log("<===== SEEDING USER_ROLES COMPLETED =====>");
   } catch (error) {
     console.error("Error during seeding user_roles:", error);

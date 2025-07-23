@@ -11,7 +11,7 @@ import {
   forbiddenRes,
   notFoundRes
 } from "@helpers/httpResponseGenerator";
-import { eq } from "drizzle-orm";
+import { eq, isNull } from "drizzle-orm";
 import { NextFunction, Response } from "express";
 import { CUSTOM_REQUEST } from "types/extended-types";
 
@@ -51,7 +51,8 @@ export const getUsers = async (
       })
       .from(users)
       .innerJoin(userRoles, eq(userRoles.user_id, users.id))
-      .innerJoin(roles, eq(roles.id, userRoles.role_id));
+      .innerJoin(roles, eq(roles.id, userRoles.role_id))
+      .where(isNull(users.deleted_at));
 
     const sortedQuery = applySorting(users, { sortBy, sortOrder })(
       getUsersQuery

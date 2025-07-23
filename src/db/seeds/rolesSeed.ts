@@ -19,7 +19,7 @@ const seedRoles = async () => {
       { name: "Admin", created_at: now },
       { name: "Cook", created_at: now },
       { name: "Delivery", created_at: now },
-      { name: "User", created_at: now }
+      { name: "Customer", created_at: now }
     ]);
 
     console.log("<===== SEEDING ROLES COMPLETED =====>");
