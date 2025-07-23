@@ -12,7 +12,7 @@ const createApiResponse = (
     `${res.req.method} ${res.req.protocol}://${res.req.rawHeaders[1]}${res.req.originalUrl}`
   );
 
-  delete res.req.body.password; // Remove sensitive data from logs
+  delete res.req.body?.password; // Remove sensitive data from logs
 
   console.log("Params: ", res.req.params);
   console.log("Request body: ", res.req.body);
