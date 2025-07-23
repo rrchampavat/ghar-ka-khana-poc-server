@@ -2,6 +2,7 @@ import db from "@db/connection";
 import { roles } from "@db/schemas/rolesSchema";
 import { userRoles } from "@db/schemas/userRolesSchema";
 import { users } from "@db/schemas/usersSchema";
+import { applySorting } from "@helpers/applySorting";
 import hasPermission from "@helpers/checkPermission";
 import getPaginatedData from "@helpers/getPaginatedData";
 import {
@@ -22,7 +23,12 @@ export const getUsers = async (
   try {
     const { user, query } = req;
 
-    const { page = 1, limit = 10 } = query;
+    const {
+      page = "1",
+      limit = "10",
+      sortBy = "created_at",
+      sortOrder = "ascending"
+    } = query;
     const hasUserReadPermission = await hasPermission(user.id, "read:user");
 
     // Check if the user has permission to view all users
@@ -30,27 +36,31 @@ export const getUsers = async (
       return forbiddenRes(res, "You do not have permission to view user list.");
     }
 
-    const allUsers = await getPaginatedData<USER_WO_PASSWORD[]>({
+    const getUsersQuery = db
+      .select({
+        id: users.id,
+        first_name: users.first_name,
+        last_name: users.last_name,
+        email: users.email,
+        contact_no: users.contact_no,
+        role: roles.id,
+        user_image: users.user_image,
+        created_at: users.created_at,
+        updated_at: users.updated_at,
+        deleted_at: users.deleted_at
+      })
+      .from(users)
+      .innerJoin(userRoles, eq(userRoles.user_id, users.id))
+      .innerJoin(roles, eq(roles.id, userRoles.role_id));
+
+    const sortedQuery = applySorting(users, { sortBy, sortOrder })(
+      getUsersQuery
+    );
+
+    const allUsers = await getPaginatedData<USER_WO_PASSWORD[]>(sortedQuery, {
       baseTable: users,
-      page: parseInt(page as string),
-      limit: parseInt(limit as string),
-      queryBuilder: () =>
-        db
-          .select({
-            id: users.id,
-            first_name: users.first_name,
-            last_name: users.last_name,
-            email: users.email,
-            contact_no: users.contact_no,
-            role: roles.id,
-            user_image: users.user_image,
-            created_at: users.created_at,
-            updated_at: users.updated_at,
-            deleted_at: users.deleted_at
-          })
-          .from(users)
-          .innerJoin(userRoles, eq(userRoles.user_id, users.id))
-          .innerJoin(roles, eq(roles.id, userRoles.role_id))
+      page: parseInt(page),
+      limit: parseInt(limit)
     });
 
     return fetchSuccess(res, "Users fetched successfully.", allUsers);
