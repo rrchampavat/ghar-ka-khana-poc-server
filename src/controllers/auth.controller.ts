@@ -10,11 +10,11 @@ import {
   fetchSuccess,
   postSuccess
 } from "@helpers/httpResponseGenerator";
-import { LOGIN_REQUEST, REGISTER_REQUEST } from "@types/auth/reqBodyTypes";
 import generateJwtToken from "@utils/generateJwtToken";
 import bcrypt from "bcryptjs";
 import { and, eq, isNull, or } from "drizzle-orm";
 import { NextFunction, Request, Response } from "express";
+import { LOGIN_REQUEST, REGISTER_REQUEST } from "types/auth/reqBodyTypes";
 
 export const registerUser = async (
   req: Request,

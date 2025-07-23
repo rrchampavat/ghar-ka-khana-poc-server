@@ -1,9 +1,4 @@
-import {
-  SERVER_PORT,
-  UPLOADTHING_APP_ID,
-  UPLOADTHING_SECRET
-} from "@constants/envVars";
-import { ourFileRouter } from "@controllers/image.controller";
+import { SERVER_PORT } from "@constants/envVars";
 import { badRequestRes, fetchSuccess } from "@helpers/httpResponseGenerator";
 import { logErrorMiddleware, returnError } from "@middlewares/errorHandler";
 import validateToken from "@middlewares/tokenValidator";
@@ -12,7 +7,7 @@ import userRoutes from "@routes/user.routes";
 import cors from "cors";
 import express, { Request, Response } from "express";
 import swaggerUi from "swagger-ui-express";
-import { createUploadthingExpressHandler } from "uploadthing/express";
+// import { createUploadthingExpressHandler } from "uploadthing/express";
 import specs from "../swagger";
 
 if (!SERVER_PORT) {
@@ -35,28 +30,30 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use("/api/v1/auth", authRoutes);
 
-app.use("/api/v1/auth/*", (_req: Request, res: Response) => {
+// Use regex path with fallback
+app.use(/^\/api\/v1\/auth\/(.*)/, (_req: Request, res: Response) => {
   badRequestRes(res, "The request URL is invalid.");
 });
 
 app.use(validateToken);
 
 app.use("/api/v1", userRoutes);
-app.use(
-  "/api/uploadthing",
-  createUploadthingExpressHandler({
-    router: ourFileRouter,
-    config: {
-      uploadthingId: UPLOADTHING_APP_ID,
-      uploadthingSecret: UPLOADTHING_SECRET
-    }
-  })
-);
+// app.use(
+//   "/api/uploadthing",
+//   createUploadthingExpressHandler({
+//     router: ourFileRouter,
+//     config: {
+//       uploadthingId: UPLOADTHING_APP_ID,
+//       uploadthingSecret: UPLOADTHING_SECRET
+//     }
+//   })
+// );
 
 app.use(logErrorMiddleware);
 app.use(returnError);
 
-app.use("/api/v1/*", (_req: Request, res: Response) => {
+// Use regex path with fallback
+app.use(/^\/api\/v1\/(.*)/, (_req: Request, res: Response) => {
   badRequestRes(res, "The request URL is invalid.");
 });
 

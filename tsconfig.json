@@ -7,13 +7,13 @@
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": ["ES2020"],
-    "module": "NodeNext",
+    "module": "commonjs",
     "skipLibCheck": true,
     "outDir": "./dist",
     "sourceMap": true,
 
     /* Bundler mode */
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "node",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -33,7 +33,7 @@
       "@helpers/*": ["helpers/*"],
       "@middlewares/*": ["middlewares/*"],
       "@routes/*": ["routes/*"],
-      "@types/*": ["types/*"],
+      // "@types/*": ["types/*"],
       "@utils/*": ["utils/*"],
       "@validation-schemas/*": ["validation-schemas/*"]
     }

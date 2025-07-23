@@ -3,6 +3,6 @@ import { Request } from "express";
 
 type REQUEST_USER = Omit<USER, "password">;
 
-interface CUSTOM_REQUEST extends Request {
+export type CUSTOM_REQUEST = Request & {
   user: REQUEST_USER;
-}
+};
