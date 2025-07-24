@@ -133,10 +133,7 @@ export const login = async (
       .innerJoin(userRoles, eq(userRoles.user_id, users.id))
       .innerJoin(roles, eq(roles.id, userRoles.role_id))
       .where(
-        and(
-          or(eq(users.email, emailOrContact!), eq(users.contact_no, contactNo)),
-          isNull(users.deleted_at)
-        )
+        or(eq(users.email, emailOrContact!), eq(users.contact_no, contactNo))
       );
 
     if (!existingUser.length) {

@@ -11,7 +11,7 @@ import {
   forbiddenRes,
   notFoundRes
 } from "@helpers/httpResponseGenerator";
-import { eq, isNull } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { NextFunction, Response } from "express";
 import { CUSTOM_REQUEST } from "types/extended-types";
 
@@ -23,12 +23,8 @@ export const getUsers = async (
   try {
     const { user, query } = req;
 
-    const {
-      page = "1",
-      limit = "10",
-      sortBy = "created_at",
-      sortOrder = "ascending"
-    } = query;
+    const { page = "1", limit = "10", sortBy = "", sortOrder = "" } = query;
+
     const hasUserReadPermission = await hasPermission(user.id, "read:user");
 
     // Check if the user has permission to view all users
@@ -51,8 +47,10 @@ export const getUsers = async (
       })
       .from(users)
       .innerJoin(userRoles, eq(userRoles.user_id, users.id))
-      .innerJoin(roles, eq(roles.id, userRoles.role_id))
-      .where(isNull(users.deleted_at));
+      .innerJoin(roles, eq(roles.id, userRoles.role_id));
+    // List deleted user at the end
+    // .orderBy(desc(users.deleted_at));
+    // .where(isNull(users.deleted_at));
 
     const sortedQuery = applySorting(users, { sortBy, sortOrder })(
       getUsersQuery
