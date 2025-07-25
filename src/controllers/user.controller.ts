@@ -9,9 +9,10 @@ import {
   badRequestRes,
   fetchSuccess,
   forbiddenRes,
-  notFoundRes
+  notFoundRes,
+  updateSuccess
 } from "@helpers/httpResponseGenerator";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { NextFunction, Response } from "express";
 import { CUSTOM_REQUEST } from "types/extended-types";
 
@@ -116,6 +117,69 @@ export const getUserById = async (
       "User details fetched successfully.",
       userDetails[0]
     );
+  } catch (error: any) {
+    return next(error);
+  }
+};
+
+export const updateUser = async (
+  req: CUSTOM_REQUEST,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { user, params, body } = req;
+    const userId = params.userID!;
+
+    const { firstName, lastName, email, userImage, contactNo } = body;
+
+    if (userId === "undefined") {
+      return badRequestRes(res, "Provide user id.");
+    }
+
+    const hasUserReadPermission = await hasPermission(user.id, "update:user");
+
+    if (!(hasUserReadPermission || user.id === parseInt(userId))) {
+      return forbiddenRes(
+        res,
+        "You do not have permission to update this user."
+      );
+    }
+
+    const baseQuery = db.select().from(users);
+
+    const userDetails = await baseQuery.where(eq(users.id, parseInt(userId)));
+
+    if (!userDetails.length) {
+      return notFoundRes(res, "User not found.");
+    }
+
+    const isUserActive =
+      (
+        await baseQuery.where(
+          and(eq(users.id, parseInt(userId)), isNull(users.deleted_at))
+        )
+      ).length > 0;
+
+    if (!isUserActive) {
+      return badRequestRes(res, "Deactivated user can not be updated.");
+    }
+
+    // Check if user has update permission
+    // User should be able to fetch their own details
+
+    await db
+      .update(users)
+      .set({
+        first_name: firstName || userDetails[0]?.first_name,
+        last_name: lastName || userDetails[0]?.last_name,
+        contact_no: contactNo || userDetails[0]?.contact_no,
+        email: email || userDetails[0]?.email,
+        user_image: userImage || userDetails[0]?.user_image
+      })
+      .where(eq(users.id, parseInt(userId)));
+
+    return updateSuccess(res, "User updated successfully.");
   } catch (error: any) {
     return next(error);
   }
