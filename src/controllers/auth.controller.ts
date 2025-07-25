@@ -6,13 +6,14 @@ import { userRoles } from "@db/schemas/userRolesSchema";
 import { users } from "@db/schemas/usersSchema";
 import {
   badRequestRes,
+  conflictRes,
   duplicateEntry,
   fetchSuccess,
   postSuccess
 } from "@helpers/httpResponseGenerator";
 import generateJwtToken from "@utils/generateJwtToken";
 import bcrypt from "bcryptjs";
-import { and, eq, isNull, or } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, or } from "drizzle-orm";
 import { NextFunction, Request, Response } from "express";
 import { LOGIN_REQUEST, REGISTER_REQUEST } from "types/auth/reqBodyTypes";
 
@@ -26,10 +27,11 @@ export const registerUser = async (
 
     const { firstName, lastName, email, password, contactNo } = body;
 
-    const existingEmail = await db
-      .select({ email: users.email })
-      .from(users)
-      .where(and(eq(users.email, email), isNull(users.deleted_at)));
+    const baseQuery = db.select({ email: users.email }).from(users);
+
+    const existingEmail = await baseQuery.where(
+      and(eq(users.email, email), isNull(users.deleted_at))
+    );
 
     // const existingEmail = await db.query.users.findMany({
     //   columns: {
@@ -66,6 +68,20 @@ export const registerUser = async (
       return duplicateEntry(
         res,
         "This number is already in use. Please try a different one."
+      );
+    }
+
+    const deletedEmail = await baseQuery.where(
+      and(
+        or(eq(users.email, email!), eq(users.contact_no, contactNo)),
+        isNotNull(users.deleted_at)
+      )
+    );
+
+    if (deletedEmail.length) {
+      return conflictRes(
+        res,
+        "An account with this email already exists but is inactive. Please recover your account instead of registering again."
       );
     }
 
@@ -115,7 +131,7 @@ export const login = async (
 
     const contactNo = emailOrContact!;
 
-    const existingUser: USER[] = await db
+    const baseQuery = db
       .select({
         id: users.id,
         first_name: users.first_name,
@@ -131,10 +147,11 @@ export const login = async (
       })
       .from(users)
       .innerJoin(userRoles, eq(userRoles.user_id, users.id))
-      .innerJoin(roles, eq(roles.id, userRoles.role_id))
-      .where(
-        or(eq(users.email, emailOrContact!), eq(users.contact_no, contactNo))
-      );
+      .innerJoin(roles, eq(roles.id, userRoles.role_id));
+
+    const existingUser: USER[] = await baseQuery.where(
+      or(eq(users.email, emailOrContact!), eq(users.contact_no, contactNo))
+    );
 
     if (!existingUser.length) {
       return badRequestRes(
@@ -150,6 +167,20 @@ export const login = async (
 
     if (!isPasswordMatch) {
       return badRequestRes(res, "The provided credentials do not match.");
+    }
+
+    const activeUser: USER[] = await baseQuery.where(
+      and(
+        or(eq(users.email, emailOrContact!), eq(users.contact_no, contactNo)),
+        isNull(users.deleted_at)
+      )
+    );
+
+    if (!activeUser.length) {
+      return badRequestRes(
+        res,
+        "This account has been deactivated. Please contact support to restore access."
+      );
     }
 
     const accessToken = generateJwtToken({

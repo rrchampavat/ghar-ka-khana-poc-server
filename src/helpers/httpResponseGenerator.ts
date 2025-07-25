@@ -86,3 +86,10 @@ export const duplicateEntry = (res: Response, message?: string) => {
     success: false
   });
 };
+
+export const conflictRes = (res: Response, message?: string) => {
+  return createApiResponse(res, httpStatusCode.CONFLICT, {
+    message: message || statusMessages[httpStatusCode.CONFLICT],
+    success: false
+  });
+};

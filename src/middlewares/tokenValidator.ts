@@ -33,7 +33,10 @@ const validateToken = async (
     });
 
     if (!existingUser) {
-      return notAuthorizedRes(res, "The request is not authorized.");
+      return notAuthorizedRes(
+        res,
+        "Account no longer exists. Please contact support if this is unexpected."
+      );
     }
 
     req.user = existingUser;

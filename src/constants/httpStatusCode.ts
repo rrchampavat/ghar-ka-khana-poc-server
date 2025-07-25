@@ -8,19 +8,21 @@ export const httpStatusCode = {
   UNAUTHORIZED: 401,
   FORBIDDEN: 403,
   NOT_FOUND: 404,
+  CONFLICT: 409,
   TOO_MANY_REQUESTS: 429,
   SERVER_ERROR: 500
 };
 
 export const statusMessages: { [key: number | string]: string } = {
-  200: "Data retrieved successfully.",
-  201: "The data has been successfully inserted.",
-  400: "Invalid request.",
-  401: "Access unauthorized.",
-  403: "Access to this request is forbidden.",
-  404: "The requested resource was not found.",
-  500: "There is an internal server error.",
-  UPDATE_SUCCESS: "The data has been successfully updated!",
-  DELETE_SUCCESS: "The data has been successfully deleted!",
-  DUPLICATE_ENTRY: "The data already exists."
+  200: "Request completed successfully.",
+  201: "New data has been created.",
+  400: "The request was invalid or malformed.",
+  401: "You must be logged in to access this resource.",
+  403: "You do not have permission to perform this action.",
+  404: "We couldn’t find what you were looking for.",
+  409: "The resource you are trying to create already exists.",
+  500: "Something went wrong on our end. Please try again later.",
+  UPDATE_SUCCESS: "Changes saved successfully.",
+  DELETE_SUCCESS: "Item deleted successfully.",
+  DUPLICATE_ENTRY: "This entry already exists. No action was taken."
 };
