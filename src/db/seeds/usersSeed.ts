@@ -104,6 +104,15 @@ const seedUsers = async () => {
       console.log("Updated user: ", id);
     }
 
+    await db.execute(sql`
+    SELECT setval(
+      pg_get_serial_sequence('"ecommerce-schema"."users"', 'id'),
+      COALESCE(MAX(id), 1),
+      true
+    )
+    FROM "ecommerce-schema"."users";
+    `);
+
     console.log("<===== DELETED_AT FIELD UPDATED FOR 150 USERS =====>");
   } catch (error) {
     console.error("Error during seeding users:", error);

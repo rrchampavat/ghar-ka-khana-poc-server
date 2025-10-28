@@ -96,9 +96,25 @@ export const registerUser = async (
         password: hashedPassword,
         contact_no: contactNo
       })
-      .returning({ user_id: users.id });
+      .returning({
+        id: users.id,
+        first_name: users.first_name,
+        last_name: users.last_name,
+        email: users.email,
+        contact_no: users.contact_no,
+        user_image: users.user_image,
+        created_at: users.created_at,
+        updated_at: users.updated_at,
+        deleted_at: users.deleted_at,
+        password: users.password
+      });
 
-    const userID = user[0]?.user_id;
+    const userID = user[0]?.id;
+
+    await db.insert(userRoles).values({
+      user_id: userID,
+      role_id: 4 // Assign customer role
+    });
 
     const accessToken = generateJwtToken({ user_id: userID }, JWT_EXPIRES_IN);
 
@@ -112,7 +128,7 @@ export const registerUser = async (
     return postSuccess(
       res,
       "Congratulations! You have successfully registered.",
-      { accessToken }
+      { accessToken, user: { ...user[0], role: 4 } }
     );
   } catch (error) {
     return next(error);

@@ -13,7 +13,11 @@
     "db:up": "drizzle-kit up",
     "db:push": "drizzle-kit push",
     "db:drop": "drizzle-kit drop",
-    "seed": "tsx src/db/seeds/masterSeed.ts"
+    "seed": "tsx src/db/seeds/masterSeed.ts",
+    "seed:roles": "tsx src/db/seeds/rolesSeed.ts && pnpm run seed:permissions && pnpm run seed:users && pnpm run seed:userRoles",
+    "seed:permissions": "tsx src/db/seeds/permissionsSeed.ts && pnpm run seed:roles && pnpm run seed:users && pnpm run seed:userRoles",
+    "seed:users": "tsx src/db/seeds/usersSeed.ts && pnpm run seed:userRoles",
+    "seed:userRoles": "tsx src/db/seeds/userRolesSeed.ts"
   },
   "keywords": [],
   "author": "",
