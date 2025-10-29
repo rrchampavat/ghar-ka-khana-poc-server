@@ -131,15 +131,15 @@ export const updateUser = async (
     const { user, params, body } = req;
     const userId = params.userID!;
 
-    const { firstName, lastName, email, userImage, contactNo } = body;
+    const { firstName, lastName, email, userImage, contactNo, role } = body;
 
     if (userId === "undefined") {
       return badRequestRes(res, "Provide user id.");
     }
 
-    const hasUserReadPermission = await hasPermission(user.id, "update:user");
+    const hasUserUpdatePermission = await hasPermission(user.id, "update:user");
 
-    if (!(hasUserReadPermission || user.id === parseInt(userId))) {
+    if (!(hasUserUpdatePermission || user.id === parseInt(userId))) {
       return forbiddenRes(
         res,
         "You do not have permission to update this user."
@@ -178,6 +178,13 @@ export const updateUser = async (
         user_image: userImage || userDetails[0]?.user_image
       })
       .where(eq(users.id, parseInt(userId)));
+
+    await db
+      .update(userRoles)
+      .set({
+        role_id: role
+      })
+      .where(eq(userRoles.user_id, parseInt(userId)));
 
     return updateSuccess(res, "User updated successfully.");
   } catch (error: any) {
