@@ -232,15 +232,88 @@ export const deactivateUser = async (
       return badRequestRes(res, "User is already deactivated.");
     }
 
+    // Check if the target user is also an admin
+    const isTargetUserAdmin = await isAdmin(parseInt(userId));
+
+    if (isTargetUserAdmin) {
+      return forbiddenRes(
+        res,
+        "Cannot deactivate another administrator account."
+      );
+    }
+
     await db
       .update(users)
       .set({
-        is_active: false,
-        updated_at: new Date()
+        is_active: false
       })
       .where(eq(users.id, parseInt(userId)));
 
     return updateSuccess(res, "User deactivated successfully.");
+  } catch (error: any) {
+    return next(error);
+  }
+};
+
+export const activateUser = async (
+  req: CUSTOM_REQUEST,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { user, params } = req;
+    const userId = params.userID!;
+
+    if (userId === "undefined") {
+      return badRequestRes(res, "Provide user id.");
+    }
+
+    // Check if the current user is an admin
+    const isUserAdmin = await isAdmin(user.id);
+
+    if (!isUserAdmin) {
+      return forbiddenRes(res, "Only administrators can activate users.");
+    }
+
+    // Prevent admin from activating themselves (they should already be active)
+    if (user.id === parseInt(userId)) {
+      return badRequestRes(res, "You cannot activate your own account.");
+    }
+
+    const userDetails = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, parseInt(userId)));
+
+    if (!userDetails.length || !userDetails[0]) {
+      return notFoundRes(res, "User not found.");
+    }
+
+    const targetUser = userDetails[0];
+
+    // Check if user is already activated
+    if (targetUser.is_active) {
+      return badRequestRes(res, "User is already activated.");
+    }
+
+    // Check if the target user is also an admin
+    const isTargetUserAdmin = await isAdmin(parseInt(userId));
+
+    if (isTargetUserAdmin) {
+      return forbiddenRes(
+        res,
+        "Cannot activate another administrator account."
+      );
+    }
+
+    await db
+      .update(users)
+      .set({
+        is_active: true
+      })
+      .where(eq(users.id, parseInt(userId)));
+
+    return updateSuccess(res, "User activated successfully.");
   } catch (error: any) {
     return next(error);
   }

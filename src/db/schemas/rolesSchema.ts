@@ -10,7 +10,10 @@ export const roles = mySchema.table("roles", {
   created_at: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
-  updated_at: timestamp("updated_at", { withTimezone: true }),
+  updated_at: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  // Auto-updated via database trigger (see drizzle/0003_add_updated_at_triggers.sql)
   deleted_at: timestamp("deleted_at", { withTimezone: true })
 });
 

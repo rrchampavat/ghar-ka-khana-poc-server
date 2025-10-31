@@ -42,9 +42,7 @@ const seedUsers = async () => {
             maxDate: new Date(),
             minDate: getOneYearAgoDate()
           }),
-          updated_at: f.default({ defaultValue: null }),
           isActive: f.boolean()
-          // deleted_at: f.default({ defaultValue: null })
         },
         count: 1000
       }

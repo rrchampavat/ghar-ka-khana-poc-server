@@ -22,6 +22,9 @@ export const users = mySchema.table("users", {
     .defaultNow()
     .notNull(),
   updated_at: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull()
+  // Auto-updated via database trigger (see drizzle/0003_add_updated_at_triggers.sql)
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
