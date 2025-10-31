@@ -3,7 +3,7 @@ import { roles } from "@db/schemas/rolesSchema";
 import { userRoles } from "@db/schemas/userRolesSchema";
 import { users } from "@db/schemas/usersSchema";
 import { applySorting } from "@helpers/applySorting";
-import hasPermission from "@helpers/checkPermission";
+import hasPermission, { isAdmin } from "@helpers/checkPermission";
 import getPaginatedData from "@helpers/getPaginatedData";
 import {
   badRequestRes,
@@ -186,6 +186,61 @@ export const updateUser = async (
       .where(eq(userRoles.user_id, parseInt(userId)));
 
     return updateSuccess(res, "User updated successfully.");
+  } catch (error: any) {
+    return next(error);
+  }
+};
+
+export const deactivateUser = async (
+  req: CUSTOM_REQUEST,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { user, params } = req;
+    const userId = params.userID!;
+
+    if (userId === "undefined") {
+      return badRequestRes(res, "Provide user id.");
+    }
+
+    // Check if the current user is an admin
+    const isUserAdmin = await isAdmin(user.id);
+
+    if (!isUserAdmin) {
+      return forbiddenRes(res, "Only administrators can deactivate users.");
+    }
+
+    // Prevent admin from deactivating themselves
+    if (user.id === parseInt(userId)) {
+      return forbiddenRes(res, "You cannot deactivate your own account.");
+    }
+
+    const userDetails = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, parseInt(userId)));
+
+    if (!userDetails.length || !userDetails[0]) {
+      return notFoundRes(res, "User not found.");
+    }
+
+    const targetUser = userDetails[0];
+
+    // Check if user is already deactivated
+    if (!targetUser.is_active) {
+      return badRequestRes(res, "User is already deactivated.");
+    }
+
+    await db
+      .update(users)
+      .set({
+        is_active: false,
+        updated_at: new Date()
+      })
+      .where(eq(users.id, parseInt(userId)));
+
+    return updateSuccess(res, "User deactivated successfully.");
   } catch (error: any) {
     return next(error);
   }
