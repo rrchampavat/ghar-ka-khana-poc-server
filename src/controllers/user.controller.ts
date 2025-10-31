@@ -3,7 +3,7 @@ import { roles } from "@db/schemas/rolesSchema";
 import { userRoles } from "@db/schemas/userRolesSchema";
 import { users } from "@db/schemas/usersSchema";
 import { applySorting } from "@helpers/applySorting";
-import hasPermission from "@helpers/checkPermission";
+import hasPermission, { isAdmin } from "@helpers/checkPermission";
 import getPaginatedData from "@helpers/getPaginatedData";
 import {
   badRequestRes,
@@ -12,7 +12,7 @@ import {
   notFoundRes,
   updateSuccess
 } from "@helpers/httpResponseGenerator";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { NextFunction, Response } from "express";
 import { CUSTOM_REQUEST } from "types/extended-types";
 
@@ -44,14 +44,14 @@ export const getUsers = async (
         user_image: users.user_image,
         created_at: users.created_at,
         updated_at: users.updated_at,
-        deleted_at: users.deleted_at
+        is_active: users.is_active
       })
       .from(users)
       .innerJoin(userRoles, eq(userRoles.user_id, users.id))
       .innerJoin(roles, eq(roles.id, userRoles.role_id));
     // List deleted user at the end
     // .orderBy(desc(users.deleted_at));
-    // .where(isNull(users.deleted_at));
+    // .where(eq(users.is_active, true));
 
     const sortedQuery = applySorting(users, { sortBy, sortOrder })(
       getUsersQuery
@@ -100,8 +100,7 @@ export const getUserById = async (
         role: roles.id,
         user_image: users.user_image,
         created_at: users.created_at,
-        updated_at: users.updated_at,
-        deleted_at: users.deleted_at
+        updated_at: users.updated_at
       })
       .from(users)
       .innerJoin(userRoles, eq(userRoles.user_id, parseInt(userId)))
@@ -157,7 +156,7 @@ export const updateUser = async (
     const isUserActive =
       (
         await baseQuery.where(
-          and(eq(users.id, parseInt(userId)), isNull(users.deleted_at))
+          and(eq(users.id, parseInt(userId)), eq(users.is_active, true))
         )
       ).length > 0;
 
@@ -187,6 +186,61 @@ export const updateUser = async (
       .where(eq(userRoles.user_id, parseInt(userId)));
 
     return updateSuccess(res, "User updated successfully.");
+  } catch (error: any) {
+    return next(error);
+  }
+};
+
+export const deactivateUser = async (
+  req: CUSTOM_REQUEST,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { user, params } = req;
+    const userId = params.userID!;
+
+    if (userId === "undefined") {
+      return badRequestRes(res, "Provide user id.");
+    }
+
+    // Check if the current user is an admin
+    const isUserAdmin = await isAdmin(user.id);
+
+    if (!isUserAdmin) {
+      return forbiddenRes(res, "Only administrators can deactivate users.");
+    }
+
+    // Prevent admin from deactivating themselves
+    if (user.id === parseInt(userId)) {
+      return forbiddenRes(res, "You cannot deactivate your own account.");
+    }
+
+    const userDetails = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, parseInt(userId)));
+
+    if (!userDetails.length || !userDetails[0]) {
+      return notFoundRes(res, "User not found.");
+    }
+
+    const targetUser = userDetails[0];
+
+    // Check if user is already deactivated
+    if (!targetUser.is_active) {
+      return badRequestRes(res, "User is already deactivated.");
+    }
+
+    await db
+      .update(users)
+      .set({
+        is_active: false,
+        updated_at: new Date()
+      })
+      .where(eq(users.id, parseInt(userId)));
+
+    return updateSuccess(res, "User deactivated successfully.");
   } catch (error: any) {
     return next(error);
   }

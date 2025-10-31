@@ -9,7 +9,7 @@ const seedRoles = async () => {
     console.log("<===== RESETTING ROLES TABLE =====>");
     await reset(db, { roles });
     await db.execute(
-      sql`TRUNCATE TABLE "ecommerce-schema".roles RESTART IDENTITY CASCADE;`
+      sql`TRUNCATE TABLE "gkk-schema".roles RESTART IDENTITY CASCADE;`
     );
 
     console.log("<===== SEEDING ROLES =====>");

@@ -10,7 +10,7 @@ const seedPermissions = async () => {
     await reset(db, { permissions });
 
     await db.execute(
-      sql`TRUNCATE TABLE "ecommerce-schema".permissions RESTART IDENTITY CASCADE;`
+      sql`TRUNCATE TABLE "gkk-schema".permissions RESTART IDENTITY CASCADE;`
     );
 
     console.log("<===== SEEDING PERMISSIONS =====>");

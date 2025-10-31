@@ -1,12 +1,12 @@
 import { InferSelectModel, relations } from "drizzle-orm";
-import { bigserial, timestamp } from "drizzle-orm/pg-core";
+import { bigint, timestamp } from "drizzle-orm/pg-core";
 import { permissions } from "./permissionsSchema";
 import { roles } from "./rolesSchema";
 import mySchema from "./schema";
 
 export const rolePermissions = mySchema.table("role_permissions", {
-  role_id: bigserial("role_id", { mode: "number" }).notNull(),
-  permission_id: bigserial("permission_id", { mode: "number" }).notNull(),
+  role_id: bigint("role_id", { mode: "number" }).notNull(),
+  permission_id: bigint("permission_id", { mode: "number" }).notNull(),
   created_at: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),

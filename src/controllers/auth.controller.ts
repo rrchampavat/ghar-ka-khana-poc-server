@@ -13,7 +13,7 @@ import {
 } from "@helpers/httpResponseGenerator";
 import generateJwtToken from "@utils/generateJwtToken";
 import bcrypt from "bcryptjs";
-import { and, eq, isNotNull, isNull, or } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { NextFunction, Request, Response } from "express";
 import { LOGIN_REQUEST, REGISTER_REQUEST } from "types/auth/reqBodyTypes";
 
@@ -30,7 +30,7 @@ export const registerUser = async (
     const baseQuery = db.select({ email: users.email }).from(users);
 
     const existingEmail = await baseQuery.where(
-      and(eq(users.email, email), isNull(users.deleted_at))
+      and(eq(users.email, email), eq(users.is_active, true))
     );
 
     // const existingEmail = await db.query.users.findMany({
@@ -56,7 +56,7 @@ export const registerUser = async (
     const existingContactNo = await db
       .select({ contact_no: users.contact_no })
       .from(users)
-      .where(and(eq(users.contact_no, contactNo), isNull(users.deleted_at)));
+      .where(and(eq(users.contact_no, contactNo), eq(users.is_active, true)));
 
     // const contactNoExistsQuery = db.execute(
     //   sql`SELECT ${users.contact_no} FROM ${users} WHERE ${users.contact_no} = ${contactNo};`
@@ -74,7 +74,7 @@ export const registerUser = async (
     const deletedEmail = await baseQuery.where(
       and(
         or(eq(users.email, email!), eq(users.contact_no, contactNo)),
-        isNotNull(users.deleted_at)
+        eq(users.is_active, true)
       )
     );
 
@@ -105,11 +105,16 @@ export const registerUser = async (
         user_image: users.user_image,
         created_at: users.created_at,
         updated_at: users.updated_at,
-        deleted_at: users.deleted_at,
-        password: users.password
+        // deleted_at: users.deleted_at,
+        password: users.password,
+        is_active: users.is_active
       });
 
     const userID = user[0]?.id;
+
+    if (!userID) {
+      return badRequestRes(res, "Failed to create user account.");
+    }
 
     await db.insert(userRoles).values({
       user_id: userID,
@@ -158,8 +163,9 @@ export const login = async (
         user_image: users.user_image,
         created_at: users.created_at,
         updated_at: users.updated_at,
-        deleted_at: users.deleted_at,
-        password: users.password
+        // deleted_at: users.deleted_at,
+        password: users.password,
+        is_active: users.is_active
       })
       .from(users)
       .innerJoin(userRoles, eq(userRoles.user_id, users.id))
@@ -188,7 +194,7 @@ export const login = async (
     const activeUser: USER[] = await baseQuery.where(
       and(
         or(eq(users.email, emailOrContact!), eq(users.contact_no, contactNo)),
-        isNull(users.deleted_at)
+        eq(users.is_active, true)
       )
     );
 

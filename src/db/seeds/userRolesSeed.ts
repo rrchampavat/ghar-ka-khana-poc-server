@@ -18,7 +18,7 @@ const seedUserRoles = async () => {
     await reset(db, { userRoles });
 
     await db.execute(
-      sql`TRUNCATE TABLE "ecommerce-schema".user_roles RESTART IDENTITY CASCADE;`
+      sql`TRUNCATE TABLE "gkk-schema".user_roles RESTART IDENTITY CASCADE;`
     );
 
     const userIDs = await db.select({ id: users.id }).from(users);

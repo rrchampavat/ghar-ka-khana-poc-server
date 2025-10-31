@@ -5,8 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1753175145897,
-      "tag": "0000_red_brother_voodoo",
+      "when": 1761818978262,
+      "tag": "0000_open_manta",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1761819004341,
+      "tag": "0001_noisy_the_stranger",
       "breakpoints": true
     }
   ]

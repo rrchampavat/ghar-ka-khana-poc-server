@@ -1,17 +1,17 @@
 {
-  "id": "338758d9-222f-4fe6-9885-1f71879716db",
+  "id": "67fd34f3-00f6-452c-bdb2-450938ffdb23",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "ecommerce-schema.permissions": {
+    "gkk-schema.permissions": {
       "name": "permissions",
-      "schema": "ecommerce-schema",
+      "schema": "gkk-schema",
       "columns": {
         "id": {
           "name": "id",
           "type": "bigserial",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true
         },
         "permission_name": {
@@ -23,8 +23,8 @@
         "action": {
           "name": "action",
           "type": "permission_enum",
-          "typeSchema": "public",
-          "primaryKey": true,
+          "typeSchema": "gkk-schema",
+          "primaryKey": false,
           "notNull": true
         },
         "created_at": {
@@ -55,19 +55,19 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "ecommerce-schema.role_permissions": {
+    "gkk-schema.role_permissions": {
       "name": "role_permissions",
-      "schema": "ecommerce-schema",
+      "schema": "gkk-schema",
       "columns": {
         "role_id": {
           "name": "role_id",
-          "type": "bigserial",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": true
         },
         "permission_id": {
           "name": "permission_id",
-          "type": "bigserial",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": true
         },
@@ -99,13 +99,13 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "ecommerce-schema.roles": {
+    "gkk-schema.roles": {
       "name": "roles",
-      "schema": "ecommerce-schema",
+      "schema": "gkk-schema",
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "bigserial",
           "primaryKey": true,
           "notNull": true
         },
@@ -151,19 +151,19 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "ecommerce-schema.user_roles": {
+    "gkk-schema.user_roles": {
       "name": "user_roles",
-      "schema": "ecommerce-schema",
+      "schema": "gkk-schema",
       "columns": {
         "user_id": {
           "name": "user_id",
-          "type": "bigserial",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": true
         },
         "role_id": {
           "name": "role_id",
-          "type": "bigserial",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": true
         },
@@ -195,9 +195,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "ecommerce-schema.users": {
+    "gkk-schema.users": {
       "name": "users",
-      "schema": "ecommerce-schema",
+      "schema": "gkk-schema",
       "columns": {
         "id": {
           "name": "id",
@@ -253,12 +253,6 @@
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {},
@@ -286,9 +280,9 @@
     }
   },
   "enums": {
-    "public.permission_enum": {
+    "gkk-schema.permission_enum": {
       "name": "permission_enum",
-      "schema": "public",
+      "schema": "gkk-schema",
       "values": [
         "create:user",
         "delete:user",
@@ -306,7 +300,7 @@
     }
   },
   "schemas": {
-    "ecommerce-schema": "ecommerce-schema"
+    "gkk-schema": "gkk-schema"
   },
   "sequences": {},
   "roles": {},

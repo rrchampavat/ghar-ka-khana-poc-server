@@ -6,30 +6,10 @@ import bcrypt from "bcryptjs";
 import { eq, sql } from "drizzle-orm";
 import { reset, seed } from "drizzle-seed";
 
-const getRandomFutureDate = () => {
-  const today = new Date();
-  const daysAhead = Math.floor(Math.random() * 365) + 1; // 1 to 365 days
-  today.setDate(today.getDate() + daysAhead);
-  return today;
-};
-
 const getOneYearAgoDate = () => {
   const date = new Date();
   date.setFullYear(date.getFullYear() - 1);
   return date;
-};
-
-const getRandomUserIDs = (
-  min: number,
-  max: number,
-  count: number
-): number[] => {
-  const set = new Set<number>();
-  while (set.size < count) {
-    const rand = Math.floor(Math.random() * (max - min + 1)) + min;
-    set.add(rand);
-  }
-  return Array.from(set);
 };
 
 const seedUsers = async () => {
@@ -38,7 +18,7 @@ const seedUsers = async () => {
     await reset(db, { users });
 
     await db.execute(
-      sql`TRUNCATE TABLE "ecommerce-schema".users RESTART IDENTITY CASCADE;`
+      sql`TRUNCATE TABLE "gkk-schema".users RESTART IDENTITY CASCADE;`
     );
 
     const defaultPassword = "User@1234";
@@ -63,7 +43,8 @@ const seedUsers = async () => {
             minDate: getOneYearAgoDate()
           }),
           updated_at: f.default({ defaultValue: null }),
-          deleted_at: f.default({ defaultValue: null })
+          isActive: f.boolean()
+          // deleted_at: f.default({ defaultValue: null })
         },
         count: 1000
       }
@@ -84,33 +65,20 @@ const seedUsers = async () => {
         last_name: "Champavat",
         email: "rrchampavat1110@gmail.com",
         contact_no: "8000012801",
-        password: customPassword
+        password: customPassword,
+        is_active: true
       })
       .where(eq(users.id, 1));
 
     console.log("<===== UPDATING RANDOM DELETED_AT FIELDS =====>");
 
-    const totalUsers = await db.$count(users);
-
-    const randomUserIDs = getRandomUserIDs(2, totalUsers, 150); // Exclude user_id 1
-
-    for (const id of randomUserIDs) {
-      await db
-        .update(users)
-        .set({
-          deleted_at: getRandomFutureDate()
-        })
-        .where(eq(users.id, id));
-      console.log("Updated user: ", id);
-    }
-
     await db.execute(sql`
     SELECT setval(
-      pg_get_serial_sequence('"ecommerce-schema"."users"', 'id'),
+      pg_get_serial_sequence('"gkk-schema"."users"', 'id'),
       COALESCE(MAX(id), 1),
       true
     )
-    FROM "ecommerce-schema"."users";
+    FROM "gkk-schema"."users";
     `);
 
     console.log("<===== DELETED_AT FIELD UPDATED FOR 150 USERS =====>");
