@@ -10,7 +10,7 @@ const seedRolePermissions = async () => {
     await reset(db, { rolePermissions });
 
     await db.execute(
-      sql`TRUNCATE TABLE "ecommerce-schema".role_permissions RESTART IDENTITY CASCADE;`
+      sql`TRUNCATE TABLE "gkk-schema".role_permissions RESTART IDENTITY CASCADE;`
     );
 
     console.log("<===== SEEDING ROLE_PERMISSIONS =====>");

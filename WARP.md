@@ -32,22 +32,28 @@ pnpm db:drop      # Drop tables
 ### Seeding Database
 
 ```bash
-pnpm seed         # Run all seeds (master seed)
-pnpm seed:user    # Seed only users
+pnpm seed              # Run all seeds in order (master seed)
+pnpm seed:roles        # Seed roles → permissions → users → userRoles (cascade)
+pnpm seed:permissions  # Seed permissions → roles → users → userRoles (cascade)
+pnpm seed:users        # Seed users → userRoles
+pnpm seed:userRoles    # Seed userRoles only
 ```
+
+Note: The master seed runs in this order: roles → permissions → users → rolePermissions → userRoles
 
 ## Architecture Overview
 
 ### Tech Stack
 
 - **Runtime**: Node.js with TypeScript
-- **Framework**: Express.js
-- **Database**: PostgreSQL (via Neon serverless)
-- **ORM**: Drizzle ORM with postgres-js driver
-- **Authentication**: JWT with bcryptjs
-- **Validation**: Zod schemas
-- **API Documentation**: Swagger (OpenAPI 3.1.0)
-- **File Uploads**: UploadThing (currently commented out)
+- **Framework**: Express.js 5.1.0
+- **Database**: PostgreSQL (via @neondatabase/serverless)
+- **ORM**: Drizzle ORM 0.44.3 with postgres driver
+- **Authentication**: JWT (jsonwebtoken) with bcryptjs
+- **Validation**: Zod 4.0.5 schemas
+- **API Documentation**: Swagger (swagger-jsdoc + swagger-ui-express)
+- **File Uploads**: Multer 2.0.2 + UploadThing (currently commented out)
+- **Dev Tools**: ts-node-dev with tsconfig-paths, husky for git hooks
 
 ### Project Structure
 
@@ -82,7 +88,7 @@ src/
 
 ### Database Schema
 
-- **Schema Name**: `ecommerce-schema` (PostgreSQL custom schema)
+- **Schema Name**: `gkk-schema` (PostgreSQL custom schema)
 - **Tables**: users, roles, permissions, userRoles (junction), rolePermissions (junction)
 - **Soft Deletes**: Uses `deleted_at` timestamp column (not hard deletes)
 - **Relations**: Defined in Drizzle using `relations()` for type-safe joins
@@ -90,14 +96,15 @@ src/
 ### Path Aliases (tsconfig)
 
 ```typescript
-@constants/*         // src/constants
-@controllers/*       // src/controllers
-@db/*                // src/db
-@helpers/*           // src/helpers
-@middlewares/*       // src/middlewares
-@routes/*            // src/routes
-@utils/*             // src/utils
+@constants/*          // src/constants
+@controllers/*        // src/controllers
+@db/*                 // src/db
+@helpers/*            // src/helpers
+@middlewares/*        // src/middlewares
+@routes/*             // src/routes
+@utils/*              // src/utils
 @validation-schemas/* // src/validation-schemas
+// Note: @types/* is commented out in tsconfig.json
 ```
 
 ### Middleware Pipeline

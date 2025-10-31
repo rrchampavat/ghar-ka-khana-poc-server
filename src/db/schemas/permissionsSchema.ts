@@ -1,9 +1,10 @@
 import { InferSelectModel, relations } from "drizzle-orm";
-import { bigserial, pgEnum, timestamp, varchar } from "drizzle-orm/pg-core";
+import { bigserial, timestamp, varchar } from "drizzle-orm/pg-core";
 import { rolePermissions } from "./rolePermissionsSchema";
 import mySchema from "./schema";
 
-export const permissionEnum = pgEnum("permission_enum", [
+// ✅ Enum inside gkk-schema
+export const permissionEnum = mySchema.enum("permission_enum", [
   "create:user",
   "delete:user",
   "update:user",
@@ -18,10 +19,11 @@ export const permissionEnum = pgEnum("permission_enum", [
   "read:permission"
 ]);
 
+// ✅ Bigserial fixes sequence issues
 export const permissions = mySchema.table("permissions", {
-  id: bigserial("id", { mode: "number" }),
+  id: bigserial("id", { mode: "number" }).primaryKey(),
   permission_name: varchar("permission_name", { length: 50 }).notNull(),
-  action: permissionEnum("action").notNull().primaryKey(),
+  action: permissionEnum("action").notNull(),
   created_at: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),

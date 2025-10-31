@@ -5,7 +5,7 @@ import { DB_CONNECTION_STRING } from "./src/constants/envVars";
 export default {
   schema: "./src/db/schemas/*",
   out: "./drizzle",
-  schemaFilter: ["ecommerce-schema"],
+  schemaFilter: ["gkk-schema"],
   dialect: "postgresql",
   casing: "snake_case",
   dbCredentials: {

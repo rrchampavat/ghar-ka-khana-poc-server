@@ -12,7 +12,7 @@ import {
   notFoundRes,
   updateSuccess
 } from "@helpers/httpResponseGenerator";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { NextFunction, Response } from "express";
 import { CUSTOM_REQUEST } from "types/extended-types";
 
@@ -44,14 +44,14 @@ export const getUsers = async (
         user_image: users.user_image,
         created_at: users.created_at,
         updated_at: users.updated_at,
-        deleted_at: users.deleted_at
+        is_active: users.is_active
       })
       .from(users)
       .innerJoin(userRoles, eq(userRoles.user_id, users.id))
       .innerJoin(roles, eq(roles.id, userRoles.role_id));
     // List deleted user at the end
     // .orderBy(desc(users.deleted_at));
-    // .where(isNull(users.deleted_at));
+    // .where(eq(users.is_active, true));
 
     const sortedQuery = applySorting(users, { sortBy, sortOrder })(
       getUsersQuery
@@ -100,8 +100,7 @@ export const getUserById = async (
         role: roles.id,
         user_image: users.user_image,
         created_at: users.created_at,
-        updated_at: users.updated_at,
-        deleted_at: users.deleted_at
+        updated_at: users.updated_at
       })
       .from(users)
       .innerJoin(userRoles, eq(userRoles.user_id, parseInt(userId)))
@@ -157,7 +156,7 @@ export const updateUser = async (
     const isUserActive =
       (
         await baseQuery.where(
-          and(eq(users.id, parseInt(userId)), isNull(users.deleted_at))
+          and(eq(users.id, parseInt(userId)), eq(users.is_active, true))
         )
       ).length > 0;
 

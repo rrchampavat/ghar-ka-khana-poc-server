@@ -2,7 +2,7 @@ import { JWT_SECRET } from "@constants/envVars";
 import db from "@db/connection";
 import { users } from "@db/schemas/usersSchema";
 import { notAuthorizedRes } from "@helpers/httpResponseGenerator";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { NextFunction, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { CUSTOM_REQUEST } from "types/extended-types";
@@ -26,7 +26,7 @@ const validateToken = async (
     const { user_id } = decodedToken;
 
     const existingUser = await db.query.users.findFirst({
-      where: and(eq(users.id, user_id), isNull(users.deleted_at)),
+      where: and(eq(users.id, user_id), eq(users.is_active, true)),
       columns: {
         password: false
       }
