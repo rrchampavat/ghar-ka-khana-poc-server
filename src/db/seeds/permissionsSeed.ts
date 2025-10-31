@@ -22,20 +22,27 @@ const seedPermissions = async () => {
       {
         permission_name: "Create User",
         action: "create:user",
-        created_at: now
+        created_at: now,
+        updated_at: now
       },
-      { permission_name: "Read User", action: "read:user", created_at: now },
+      {
+        permission_name: "Read User",
+        action: "read:user",
+        created_at: now,
+        updated_at: now
+      },
       {
         permission_name: "Update User",
         action: "update:user",
-        created_at: now
+        created_at: now,
+        updated_at: now
       },
       {
         permission_name: "Delete User",
         action: "delete:user",
-        created_at: now
+        created_at: now,
+        updated_at: now
       },
-
       {
         permission_name: "Create Role",
         action: "create:role",
@@ -52,7 +59,6 @@ const seedPermissions = async () => {
         action: "delete:role",
         created_at: now
       },
-
       {
         permission_name: "Create Permission",
         action: "create:permission",

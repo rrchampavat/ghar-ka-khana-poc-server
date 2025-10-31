@@ -124,11 +124,20 @@ pnpm db:generate
 # Apply migrations
 pnpm db:up
 
-# Push schema changes to database
+# Push schema changes to database (includes automatic trigger setup)
 pnpm db:push
 
 # Drop migrations
 pnpm db:drop
+
+# Apply database triggers for auto-updating timestamps
+pnpm db:triggers
+
+# Check if triggers are installed
+pnpm db:check-triggers
+
+# Test trigger functionality
+pnpm db:test-triggers
 
 # Seed database with all data
 pnpm seed
@@ -139,6 +148,8 @@ pnpm seed:permissions
 pnpm seed:users
 pnpm seed:userRoles
 ```
+
+> **Note**: The `updated_at` field is automatically updated by database triggers. See [DATABASE_TRIGGERS.md](DATABASE_TRIGGERS.md) for details.
 
 ### Code Quality
 
@@ -349,8 +360,11 @@ The application uses a custom PostgreSQL schema (`gkk-schema`) with the followin
 - **Custom Schema**: All tables are created in the `gkk-schema` schema (not public)
 - **Soft Deletes**: Support for `deleted_at` timestamps for data retention
 - **Audit Trail**: `created_at` and `updated_at` timestamps on all tables
+- **Auto-Update Timestamps**: Database triggers automatically update `updated_at` on every modification
 - **Type Safety**: Full TypeScript type inference with Drizzle ORM
 - **Relations**: Proper foreign key relationships between tables
+
+> **Important**: The `updated_at` field is automatically managed by PostgreSQL triggers. No manual updates needed in application code. See [DATABASE_TRIGGERS.md](DATABASE_TRIGGERS.md) for details.
 
 ## 🚦 Rate Limiting
 
