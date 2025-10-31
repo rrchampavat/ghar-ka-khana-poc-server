@@ -2,7 +2,7 @@ import { JWT_SECRET } from "@constants/envVars";
 import db from "@db/connection";
 import { users } from "@db/schemas/usersSchema";
 import { notAuthorizedRes } from "@helpers/httpResponseGenerator";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { NextFunction, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { CUSTOM_REQUEST } from "types/extended-types";
@@ -25,21 +25,30 @@ const validateToken = async (
 
     const { user_id } = decodedToken;
 
-    const existingUser = await db.query.users.findFirst({
-      where: and(eq(users.id, user_id), eq(users.is_active, true)),
+    // First check if user exists at all
+    const user = await db.query.users.findFirst({
+      where: eq(users.id, user_id),
       columns: {
         password: false
       }
     });
 
-    if (!existingUser) {
+    if (!user) {
       return notAuthorizedRes(
         res,
         "Account no longer exists. Please contact support if this is unexpected."
       );
     }
 
-    req.user = existingUser;
+    // Check if user account is deactivated
+    if (!user.is_active) {
+      return notAuthorizedRes(
+        res,
+        "Your account has been deactivated. Please contact support to restore access."
+      );
+    }
+
+    req.user = user;
 
     return next();
   } catch (error) {
