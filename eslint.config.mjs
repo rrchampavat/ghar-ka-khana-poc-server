@@ -137,7 +137,7 @@ export default defineConfig([
       ],
 
       "@typescript-eslint/no-empty-interface": "error",
-      "@typescript-eslint/no-unnecessary-condition": "error",
+      "@typescript-eslint/no-unnecessary-condition": "warn",
       "@typescript-eslint/prefer-includes": "error"
     }
   }

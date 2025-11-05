@@ -4,8 +4,9 @@ import { logErrorMiddleware, returnError } from "@middlewares/errorHandler";
 import validateToken from "@middlewares/tokenValidator";
 import authRoutes from "@routes/auth.routes";
 import userRoutes from "@routes/user.routes";
+import cookieParser from "cookie-parser";
 import cors from "cors";
-import express, { Request, Response } from "express";
+import express, { Request, RequestHandler, Response } from "express";
 import swaggerUi from "swagger-ui-express";
 // import { createUploadthingExpressHandler } from "uploadthing/express";
 import specs from "../swagger";
@@ -16,7 +17,13 @@ if (!SERVER_PORT) {
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+    origin: true // Allow all origins, or specify your frontend URL(s)
+  })
+);
+app.use(cookieParser());
 app.use(express.json()); // used to get data from JSON type
 app.use(express.urlencoded({ extended: true })); // used to get data from URL or form data
 
@@ -35,7 +42,7 @@ app.use(/^\/api\/v1\/auth\/(.*)/, (_req: Request, res: Response) => {
   badRequestRes(res, "The request URL is invalid.");
 });
 
-app.use(validateToken);
+app.use(validateToken as RequestHandler);
 
 app.use("/api/v1", userRoutes);
 // app.use(

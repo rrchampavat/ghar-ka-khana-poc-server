@@ -64,24 +64,26 @@ src/
 ├── controllers/           # Request handlers (auth, user, image)
 ├── routes/                # Express route definitions
 ├── middlewares/           # Token validation, error handling, rate limiting, schema validation
-├── helpers/               # Reusable utilities (pagination, permissions, query building, HTTP responses)
+├── helpers/               # Reusable utilities (pagination, permissions, query building, HTTP responses, cookies)
 ├── db/
 │   ├── connection.ts      # Drizzle database instance with postgres client
 │   ├── schemas/           # Drizzle table schemas (users, roles, permissions, relations)
 │   └── seeds/             # Database seeding scripts
 ├── validation-schemas/    # Zod request validation schemas
 ├── types/                 # TypeScript type definitions
-├── utils/                 # JWT generation, image upload utilities
+├── utils/                 # JWT generation (access & refresh tokens), image upload utilities
 ├── error-handling/        # Custom error classes
 └── swagger-docs/          # Swagger JSDoc definitions
 ```
 
 ### Authentication & Authorization Flow
 
-1. **Registration**: User registers → password hashed with bcrypt → JWT token generated → default "customer" role (ID: 4) assigned via `userRoles` table
-2. **Login**: Credentials validated → JWT token issued with `user_id` payload
-3. **Protected Routes**: All routes under `/api/v1` (except `/api/v1/auth`) require JWT validation via `validateToken` middleware
-4. **Permissions**: Role-Based Access Control (RBAC) system with:
+1. **Registration**: User registers → password hashed with bcrypt → access token (JWT) and refresh token generated → refresh token stored (hashed) in `refresh_tokens` table → refresh token set as HTTP-only cookie → default "customer" role (ID: 4) assigned via `userRoles` table
+2. **Login**: Credentials validated → access token (JWT) and refresh token generated → refresh token stored (hashed) in `refresh_tokens` table → refresh token set as HTTP-only cookie
+3. **Token Refresh**: Refresh token validated (from cookie or body) → new access token and refresh token generated → old refresh token revoked and linked to new one (token rotation) → new refresh token set as HTTP-only cookie
+4. **Logout**: Refresh token revoked (marked as `is_revoked = true` in database) → refresh token cookie cleared
+5. **Protected Routes**: All routes under `/api/v1` (except `/api/v1/auth`) require JWT validation via `validateToken` middleware, which also checks for active (non-revoked, non-expired) refresh tokens
+6. **Permissions**: Role-Based Access Control (RBAC) system with:
    - `users` → `userRoles` → `roles` → `rolePermissions` → `permissions`
    - Permission format: `{action}:{resource}` (e.g., `create:user`, `read:role`)
    - `hasPermission()` helper checks user permissions via complex join query
@@ -89,9 +91,10 @@ src/
 ### Database Schema
 
 - **Schema Name**: `gkk-schema` (PostgreSQL custom schema)
-- **Tables**: users, roles, permissions, userRoles (junction), rolePermissions (junction)
+- **Tables**: users, roles, permissions, userRoles (junction), rolePermissions (junction), refresh_tokens
 - **Soft Deletes**: Uses `deleted_at` timestamp column (not hard deletes)
 - **Relations**: Defined in Drizzle using `relations()` for type-safe joins
+- **Refresh Tokens**: Stored hashed (bcrypt) in `refresh_tokens` table with rotation support (`replaced_by` field)
 
 ### Path Aliases (tsconfig)
 
@@ -110,12 +113,16 @@ src/
 ### Middleware Pipeline
 
 1. CORS enabled globally
-2. JSON & URL-encoded body parsing
-3. Rate limiting via `express-rate-limit`
-4. `/api/v1/auth/*` routes → unauthenticated
-5. All other `/api/v1/*` routes → `validateToken` middleware
-6. Request validation → `schemaValidator` middleware (Zod)
-7. Error handling → `logErrorMiddleware` → `returnError`
+2. Cookie parser middleware (for refresh token cookies)
+3. JSON & URL-encoded body parsing
+4. Rate limiting via `express-rate-limit`
+5. `/api/v1/auth/*` routes → unauthenticated (register, login, refresh, logout)
+6. All other `/api/v1/*` routes → `validateToken` middleware
+   - Validates JWT access token
+   - Checks user exists and is active
+   - Verifies user has at least one active (non-revoked, non-expired) refresh token
+7. Request validation → `schemaValidator` middleware (Zod)
+8. Error handling → `logErrorMiddleware` → `returnError`
 
 ### Key Patterns
 
@@ -139,8 +146,15 @@ src/
 
 Centralized response helpers in `@helpers/httpResponseGenerator`:
 
-- `fetchSuccess()`, `postSuccess()`, `putSuccess()`, `deleteSuccess()`
+- `fetchSuccess()`, `postSuccess()`, `updateSuccess()`, `deleteSuccess()`
 - `badRequestRes()`, `notAuthorizedRes()`, `conflictRes()`, `duplicateEntry()`
+
+#### Cookie Helpers
+
+Refresh token cookie management in `@helpers/cookie`:
+
+- `setRefreshCookie()` - Sets HTTP-only, secure cookie with refresh token
+- Cookies configured with `sameSite: "lax"` for CSRF protection
 
 #### Schema Validation
 
@@ -149,6 +163,22 @@ All routes use Zod schemas with `validate()` middleware that validates `body`, `
 #### Error Handling
 
 Custom error classes extend `BaseError` and are caught by `logErrorMiddleware` → `returnError` chain.
+
+#### Token Management
+
+JWT utilities in `@utils/jwt`:
+
+- `generateJwtToken()` - Creates signed JWT access token
+- `generateRefreshTokenString()` - Generates cryptographically secure refresh token
+- `hashRefreshToken()` - Hashes refresh token with bcrypt before storage
+- `compareRefreshTokenHash()` - Compares plaintext token with stored hash
+- `getRefreshExpiryDate()` - Calculates refresh token expiration date
+
+Token rotation is implemented in the refresh endpoint:
+
+- Old refresh token is revoked (`is_revoked = true`)
+- New refresh token is created and linked via `replaced_by` field
+- Both operations are atomic (database transaction)
 
 ## Coding Standards
 
@@ -178,7 +208,11 @@ Required variables (see `.env.example`):
 
 - `SERVER_PORT` - Express server port
 - `DB_CONNECTION_STRING` - PostgreSQL connection URL
-- `JWT_SECRET` - Secret for JWT signing
+- `JWT_SECRET` - Secret for JWT access token signing
+- `JWT_EXPIRES_IN_SEC` - Access token expiration time in seconds (default: 3600)
+- `REFRESH_TOKEN_BYTES` - Number of random bytes for refresh token generation (default: 32)
+- `REFRESH_TOKEN_EXP_DAYS` - Refresh token validity in days (default: 7)
+- `BCRYPT_SALT` - Salt rounds for password and refresh token hashing
 - `UPLOADTHING_SECRET`, `UPLOADTHING_APP_ID` - File upload service credentials
 
 ## API Documentation

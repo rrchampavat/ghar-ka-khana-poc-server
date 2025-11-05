@@ -1,21 +1,31 @@
-import { BCRYPT_SALT } from "@constants/envVars";
-import { JWT_EXPIRES_IN } from "@constants/jwt";
+import { USER_ROLES } from "@constants/enums";
+import { BCRYPT_SALT, JWT_EXPIRES_IN_SEC } from "@constants/envVars";
 import db from "@db/connection";
+import { REFRESH_TOKEN, refreshTokens } from "@db/schemas/refreshTokenSchema";
 import { roles } from "@db/schemas/rolesSchema";
 import { userRoles } from "@db/schemas/userRolesSchema";
 import { users } from "@db/schemas/usersSchema";
+import { setRefreshCookie } from "@helpers/cookie";
 import {
   badRequestRes,
   conflictRes,
   duplicateEntry,
   fetchSuccess,
+  notAuthorizedRes,
   postSuccess
 } from "@helpers/httpResponseGenerator";
-import generateJwtToken from "@utils/generateJwtToken";
+import {
+  compareRefreshTokenHash,
+  generateJwtToken,
+  generateRefreshTokenString,
+  getRefreshExpiryDate,
+  hashRefreshToken
+} from "@utils/jwt";
 import bcrypt from "bcryptjs";
 import { and, eq, or } from "drizzle-orm";
 import { NextFunction, Request, Response } from "express";
 import { LOGIN_REQUEST, REGISTER_REQUEST } from "types/auth/reqBodyTypes";
+import { CUSTOM_REQUEST } from "types/extended-types";
 
 export const registerUser = async (
   req: Request,
@@ -53,6 +63,20 @@ export const registerUser = async (
       );
     }
 
+    const deletedEmail = await baseQuery.where(
+      and(
+        or(eq(users.email, email!), eq(users.contact_no, contactNo)),
+        eq(users.is_active, false)
+      )
+    );
+
+    if (deletedEmail.length) {
+      return conflictRes(
+        res,
+        "An account with this email already exists but is inactive. Please recover your account instead of registering again."
+      );
+    }
+
     const existingContactNo = await db
       .select({ contact_no: users.contact_no })
       .from(users)
@@ -68,20 +92,6 @@ export const registerUser = async (
       return duplicateEntry(
         res,
         "This number is already in use. Please try a different one."
-      );
-    }
-
-    const deletedEmail = await baseQuery.where(
-      and(
-        or(eq(users.email, email!), eq(users.contact_no, contactNo)),
-        eq(users.is_active, true)
-      )
-    );
-
-    if (deletedEmail.length) {
-      return conflictRes(
-        res,
-        "An account with this email already exists but is inactive. Please recover your account instead of registering again."
       );
     }
 
@@ -105,7 +115,6 @@ export const registerUser = async (
         user_image: users.user_image,
         created_at: users.created_at,
         updated_at: users.updated_at,
-        // deleted_at: users.deleted_at,
         password: users.password,
         is_active: users.is_active
       });
@@ -118,10 +127,32 @@ export const registerUser = async (
 
     await db.insert(userRoles).values({
       user_id: userID,
-      role_id: 4 // Assign customer role
+      role_id: USER_ROLES["Customer"] // Assign customer role
     });
 
-    const accessToken = generateJwtToken({ user_id: userID }, JWT_EXPIRES_IN);
+    const accessToken = generateJwtToken(
+      { user_id: userID },
+      JWT_EXPIRES_IN_SEC
+    );
+
+    // Add refresh token to DB
+
+    const refreshString = generateRefreshTokenString();
+    const hashed = await hashRefreshToken(refreshString);
+    const expiresAt = getRefreshExpiryDate();
+
+    await db
+      .insert(refreshTokens)
+      .values({
+        user_id: user?.[0]?.id,
+        token_hash: hashed,
+        expires_at: expiresAt,
+        user_agent: req.get("user-agent") ?? null,
+        ip: req.ip
+      })
+      .returning();
+
+    setRefreshCookie(res, refreshString, expiresAt);
 
     // const insertUserQuery = sql`INSERT INTO ${users} (first_name, last_name, email, password, contact_no, role_id, user_image)
     //         VALUES (${firstName}, ${lastName}, ${email}, ${hashedPassword}, ${contactNo}, 0, ${userImage})`;
@@ -133,7 +164,7 @@ export const registerUser = async (
     return postSuccess(
       res,
       "Congratulations! You have successfully registered.",
-      { accessToken, user: { ...user[0], role: 4 } }
+      { accessToken, user: { ...user[0], role: USER_ROLES["Customer"] } }
     );
   } catch (error) {
     return next(error);
@@ -163,7 +194,6 @@ export const login = async (
         user_image: users.user_image,
         created_at: users.created_at,
         updated_at: users.updated_at,
-        // deleted_at: users.deleted_at,
         password: users.password,
         is_active: users.is_active
       })
@@ -212,11 +242,150 @@ export const login = async (
 
     const { password: userPassword, ...restUser } = existingUser[0]!;
 
+    // Add refresh token to DB
+    const refreshString = generateRefreshTokenString();
+    const hashed = await hashRefreshToken(refreshString);
+    const expiresAt = getRefreshExpiryDate();
+
+    await db
+      .insert(refreshTokens)
+      .values({
+        user_id: activeUser?.[0]?.id,
+        token_hash: hashed,
+        expires_at: expiresAt,
+        user_agent: req.get("user-agent") ?? null,
+        ip: req.ip
+      })
+      .returning();
+
+    setRefreshCookie(res, refreshString, expiresAt);
+
     return fetchSuccess(res, "You have successfully logged in.", {
       user: restUser,
       accessToken
     });
   } catch (error) {
     return next(error);
+  }
+};
+
+export const generateRefreshToken = async (
+  req: CUSTOM_REQUEST,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const presentedToken = req.cookies?.refreshToken ?? req.body?.refreshToken;
+
+    if (!presentedToken)
+      return notAuthorizedRes(res, "No refresh token found.");
+
+    const candidates = await db
+      .select()
+      .from(refreshTokens)
+      .where(eq(refreshTokens.is_revoked, false));
+
+    let matchedRow: REFRESH_TOKEN | null = null;
+
+    for (const r of candidates) {
+      const isOk = await compareRefreshTokenHash(presentedToken, r.token_hash);
+
+      if (isOk) {
+        matchedRow = r;
+        break;
+      }
+    }
+
+    if (!matchedRow) return notAuthorizedRes(res, "Invalid refresh token.");
+
+    if (new Date(matchedRow.expires_at) < new Date())
+      return notAuthorizedRes(res, "Refresh token has expired.");
+
+    // Store matched row values to avoid TypeScript narrowing issues in async callbacks
+    const matchedRowId = matchedRow.id;
+    const matchedRowUserId = matchedRow.user_id;
+
+    // rotation: create new refresh token, mark old as revoked and set replaced_by
+    const newRefreshString = generateRefreshTokenString();
+    const newHash = await hashRefreshToken(newRefreshString);
+    const newExpiry = getRefreshExpiryDate();
+
+    await db.transaction(async (tx) => {
+      const inserted = await tx
+        .insert(refreshTokens)
+        .values({
+          user_id: matchedRowUserId,
+          token_hash: newHash,
+          expires_at: newExpiry,
+          user_agent: req.get("user-agent") ?? null,
+          ip: req.ip
+        })
+        .returning();
+
+      // revoke old and set replaced_by
+      await tx
+        .update(refreshTokens)
+        .set({ is_revoked: true, replaced_by: inserted?.[0]?.id })
+        .where(eq(refreshTokens.id, matchedRowId));
+    });
+
+    const roles = await db
+      .select({
+        role: userRoles.role_id
+      })
+      .from(userRoles)
+      .where(eq(userRoles.user_id, matchedRowUserId));
+
+    // issue new access token
+    const accessToken = generateJwtToken({
+      role: roles?.[0]!.role,
+      user_id: matchedRowUserId
+    });
+
+    setRefreshCookie(res, newRefreshString, newExpiry);
+
+    return fetchSuccess(res, "", { accessToken });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const logout = async (
+  req: CUSTOM_REQUEST,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const presentedToken = req.cookies?.refreshToken ?? req.body?.refreshToken;
+
+    if (!presentedToken) {
+      // best-effort: clear cookie and respond OK
+      res.clearCookie("refreshToken", { path: "/" });
+      return res.json({ ok: true });
+    }
+
+    // find matching token and revoke it
+    const candidates = await db
+      .select()
+      .from(refreshTokens)
+      .where(eq(refreshTokens.is_revoked, false));
+
+    for (const r of candidates) {
+      const isOk = await compareRefreshTokenHash(presentedToken, r.token_hash);
+
+      if (isOk) {
+        await db
+          .update(refreshTokens)
+          .set({ is_revoked: true })
+          .where(eq(refreshTokens.id, r.id));
+
+        break;
+      }
+    }
+
+    res.clearCookie("refreshToken", { path: "/" });
+    return res.json({ ok: true });
+  } catch (error) {
+    next(error);
   }
 };
