@@ -8,4 +8,4 @@ export const DEFAULT_LIMIT = 10;
 export const defaultRateLimitHandler = (_req: Request, res: Response) =>
   res
     .status(httpStatusCode.TOO_MANY_REQUESTS)
-    .json({ message: "You have exceeded your 5 requests per minute limit." });
+    .json({ message: "You have exceeded your 10 requests per minute limit." });
