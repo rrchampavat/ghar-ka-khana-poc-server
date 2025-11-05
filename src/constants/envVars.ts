@@ -21,3 +21,12 @@ export const UPLOADTHING_APP_ID = process.env.UPLOADTHING_APP_ID!;
 
 // JWT
 export const JWT_SECRET = process.env.JWT_SECRET!;
+export const JWT_EXPIRES_IN_SEC = parseInt(process.env.JWT_EXPIRES_IN_SEC!, 10);
+export const REFRESH_TOKEN_BYTES = parseInt(
+  process.env.REFRESH_TOKEN_BYTES!,
+  10
+); // length of refresh token (random bytes)
+export const REFRESH_TOKEN_EXP_DAYS = parseInt(
+  process.env.REFRESH_TOKEN_EXP_DAYS!,
+  10
+); // refresh token validity

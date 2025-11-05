@@ -1,8 +1,9 @@
 import { JWT_SECRET } from "@constants/envVars";
 import db from "@db/connection";
+import { refreshTokens } from "@db/schemas/refreshTokenSchema";
 import { users } from "@db/schemas/usersSchema";
 import { notAuthorizedRes } from "@helpers/httpResponseGenerator";
-import { eq } from "drizzle-orm";
+import { and, eq, gt } from "drizzle-orm";
 import { NextFunction, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { CUSTOM_REQUEST } from "types/extended-types";
@@ -45,6 +46,27 @@ const validateToken = async (
       return notAuthorizedRes(
         res,
         "Your account has been deactivated. Please contact support to restore access."
+      );
+    }
+
+    // Check if user has any active (non-revoked) refresh tokens
+    // If all refresh tokens are deleted/revoked, the user should be logged out
+    const activeRefreshTokens = await db
+      .select()
+      .from(refreshTokens)
+      .where(
+        and(
+          eq(refreshTokens.user_id, user_id),
+          eq(refreshTokens.is_revoked, false),
+          gt(refreshTokens.expires_at, new Date())
+        )
+      )
+      .limit(1);
+
+    if (!activeRefreshTokens.length) {
+      return notAuthorizedRes(
+        res,
+        "Your session has expired. Please log in again."
       );
     }
 

@@ -5,10 +5,12 @@ A Node.js/Express backend server for the Ghar Ka Khana application with role-bas
 ## 🚀 Features
 
 - **Authentication & Authorization**
-  - JWT-based authentication
+  - JWT-based authentication with access tokens
+  - Refresh token system with HTTP-only cookies
+  - Token rotation for enhanced security
   - Role-based access control (RBAC)
   - Permission-based authorization system
-  - User registration and login
+  - User registration, login, and logout
 
 - **User Management**
   - User CRUD operations
@@ -83,7 +85,10 @@ A Node.js/Express backend server for the Ghar Ka Khana application with role-bas
 
    # Security
    JWT_SECRET=your_jwt_secret_key
+   JWT_EXPIRES_IN_SEC=3600
    BCRYPT_SALT=10
+   REFRESH_TOKEN_BYTES=32
+   REFRESH_TOKEN_EXP_DAYS=7
 
    # File Upload (Optional - UploadThing)
    UPLOADTHING_SECRET=your_uploadthing_secret
@@ -177,12 +182,15 @@ server/
 │   ├── db/                 # Database configuration
 │   │   ├── connection.ts
 │   │   ├── schemas/        # Database schemas
+│   │   │   ├── refreshTokenSchema.ts
+│   │   │   └── ...
 │   │   └── seeds/          # Database seeders
 │   ├── error-handling/     # Error handling utilities
 │   ├── helpers/            # Helper functions
 │   │   ├── applySorting.ts
 │   │   ├── buildRawQuery.ts
 │   │   ├── checkPermission.ts
+│   │   ├── cookie.ts
 │   │   ├── generateExecutableQuery.ts
 │   │   ├── getPaginatedData.ts
 │   │   └── httpResponseGenerator.ts
@@ -198,7 +206,7 @@ server/
 │   ├── swagger-docs/       # Swagger documentation
 │   ├── types/              # TypeScript type definitions
 │   ├── utils/              # Utility functions
-│   │   ├── generateJwtToken.ts
+│   │   ├── jwt.ts
 │   │   └── image-upload.ts
 │   └── validation-schemas/ # Zod validation schemas
 │       └── authSchemas/
@@ -213,26 +221,47 @@ server/
 
 1. **Register**: `POST /api/v1/auth/register`
    - Creates a new user account
-   - Returns user data and JWT token
+   - Generates access token (JWT) and refresh token
+   - Returns user data and access token
+   - Sets refresh token as HTTP-only cookie
 
 2. **Login**: `POST /api/v1/auth/login`
    - Authenticates user credentials
-   - Returns JWT token
+   - Generates access token (JWT) and refresh token
+   - Returns user data and access token
+   - Sets refresh token as HTTP-only cookie
 
-3. **Protected Routes**: Include JWT token in Authorization header
+3. **Refresh Token**: `POST /api/v1/auth/refresh`
+   - Uses refresh token (from cookie or body) to get new access token
+   - Implements token rotation (old refresh token is revoked, new one issued)
+   - Returns new access token and sets new refresh token cookie
+
+4. **Logout**: `POST /api/v1/auth/logout`
+   - Revokes refresh token (marks as revoked in database)
+   - Clears refresh token cookie
+   - User must log in again to get new tokens
+
+5. **Protected Routes**: Include JWT access token in Authorization header
+
    ```
-   Authorization: Bearer <your-jwt-token>
+   Authorization: Bearer <your-access-token>
    ```
+
+   - Access tokens are short-lived (default: 1 hour)
+   - Refresh tokens are long-lived (default: 7 days)
+   - If refresh token is revoked or deleted, user is automatically logged out
 
 ## 📚 API Endpoints
 
 ### Public Endpoints (No Authentication Required)
 
-| Method | Endpoint                | Description                  |
-| ------ | ----------------------- | ---------------------------- |
-| `GET`  | `/`                     | Health check - Server status |
-| `POST` | `/api/v1/auth/register` | Register a new user          |
-| `POST` | `/api/v1/auth/login`    | User login                   |
+| Method | Endpoint                | Description                              |
+| ------ | ----------------------- | ---------------------------------------- |
+| `GET`  | `/`                     | Health check - Server status             |
+| `POST` | `/api/v1/auth/register` | Register a new user                      |
+| `POST` | `/api/v1/auth/login`    | User login                               |
+| `POST` | `/api/v1/auth/refresh`  | Get new access token using refresh token |
+| `POST` | `/api/v1/auth/logout`   | Revoke refresh token and logout          |
 
 ### Protected Endpoints (Authentication Required)
 
@@ -341,6 +370,12 @@ The application uses a custom PostgreSQL schema (`gkk-schema`) with the followin
   - Fields: `id`, `first_name`, `last_name`, `email`, `password`, `contact_no`, `user_image`, `is_active`, `created_at`, `updated_at`
   - Indexes: Unique on `email` and `contact_no`
 
+- **`refresh_tokens`** - Refresh tokens for session management
+  - Fields: `id`, `user_id`, `token_hash`, `expires_at`, `created_at`, `is_revoked`, `replaced_by`, `user_agent`, `ip`
+  - Refresh tokens are hashed before storage (bcrypt)
+  - Supports token rotation (replaced_by links old tokens to new ones)
+  - Tracks user agent and IP for security auditing
+
 - **`roles`** - System roles for RBAC
   - Fields: `id`, `name`, `created_at`, `updated_at`, `deleted_at`
   - Default roles: Admin, Cook, Delivery, Customer
@@ -398,9 +433,13 @@ The application provides standardized response helpers for consistent API respon
    - Never return passwords in API responses
 
 2. **JWT Token Management**
-   - Tokens are signed with a secret key
-   - Token validation middleware on protected routes
-   - Stateless authentication for scalability
+   - Access tokens are short-lived (configurable via `JWT_EXPIRES_IN_SEC`)
+   - Refresh tokens are long-lived (configurable via `REFRESH_TOKEN_EXP_DAYS`)
+   - Refresh tokens stored as hashed values in database (bcrypt)
+   - Token rotation implemented (old refresh token revoked when new one issued)
+   - Refresh tokens set as HTTP-only cookies (prevents XSS attacks)
+   - Token validation middleware checks for active refresh tokens
+   - If refresh token is revoked/deleted, user is automatically logged out
 
 3. **Input Validation**
    - Zod schemas for request validation
