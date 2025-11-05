@@ -63,6 +63,20 @@ export const registerUser = async (
       );
     }
 
+    const deletedEmail = await baseQuery.where(
+      and(
+        or(eq(users.email, email!), eq(users.contact_no, contactNo)),
+        eq(users.is_active, false)
+      )
+    );
+
+    if (deletedEmail.length) {
+      return conflictRes(
+        res,
+        "An account with this email already exists but is inactive. Please recover your account instead of registering again."
+      );
+    }
+
     const existingContactNo = await db
       .select({ contact_no: users.contact_no })
       .from(users)
@@ -78,20 +92,6 @@ export const registerUser = async (
       return duplicateEntry(
         res,
         "This number is already in use. Please try a different one."
-      );
-    }
-
-    const deletedEmail = await baseQuery.where(
-      and(
-        or(eq(users.email, email!), eq(users.contact_no, contactNo)),
-        eq(users.is_active, true)
-      )
-    );
-
-    if (deletedEmail.length) {
-      return conflictRes(
-        res,
-        "An account with this email already exists but is inactive. Please recover your account instead of registering again."
       );
     }
 
